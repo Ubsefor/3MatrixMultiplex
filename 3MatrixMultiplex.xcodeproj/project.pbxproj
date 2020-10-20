@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		47314910253F1148005B5CFC /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4731490F253F1148005B5CFC /* main.cpp */; };
+		47314919253F118D005B5CFC /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 47314918253F118D005B5CFC /* libomp.dylib */; };
+		4731491A253F1258005B5CFC /* libomp.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 47314918253F118D005B5CFC /* libomp.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4731491E253F12BD005B5CFC /* 3mm.c in Sources */ = {isa = PBXBuildFile; fileRef = 4731491D253F12BD005B5CFC /* 3mm.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,11 +22,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		4731491B253F1258005B5CFC /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4731491A253F1258005B5CFC /* libomp.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4731490C253F1148005B5CFC /* 3MatrixMultiplex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = 3MatrixMultiplex; sourceTree = BUILT_PRODUCTS_DIR; };
-		4731490F253F1148005B5CFC /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		47314918253F118D005B5CFC /* libomp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libomp.dylib; path = ../../../../../../../usr/local/Cellar/llvm/10.0.1_2/lib/libomp.dylib; sourceTree = "<group>"; };
+		4731491C253F12BD005B5CFC /* 3mm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = 3mm.h; sourceTree = "<group>"; };
+		4731491D253F12BD005B5CFC /* 3mm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = 3mm.c; sourceTree = "<group>"; };
+		4731491F253F1419005B5CFC /* 3MatrixMultiplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = 3MatrixMultiplex.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47314919253F118D005B5CFC /* libomp.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +60,7 @@
 			children = (
 				4731490E253F1148005B5CFC /* 3MatrixMultiplex */,
 				4731490D253F1148005B5CFC /* Products */,
+				47314917253F118D005B5CFC /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,9 +75,19 @@
 		4731490E253F1148005B5CFC /* 3MatrixMultiplex */ = {
 			isa = PBXGroup;
 			children = (
-				4731490F253F1148005B5CFC /* main.cpp */,
+				4731491F253F1419005B5CFC /* 3MatrixMultiplex.entitlements */,
+				4731491C253F12BD005B5CFC /* 3mm.h */,
+				4731491D253F12BD005B5CFC /* 3mm.c */,
 			);
 			path = 3MatrixMultiplex;
+			sourceTree = "<group>";
+		};
+		47314917253F118D005B5CFC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				47314918253F118D005B5CFC /* libomp.dylib */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -72,6 +100,7 @@
 				47314908253F1148005B5CFC /* Sources */,
 				47314909253F1148005B5CFC /* Frameworks */,
 				4731490A253F1148005B5CFC /* CopyFiles */,
+				4731491B253F1258005B5CFC /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -118,7 +147,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				47314910253F1148005B5CFC /* main.cpp in Sources */,
+				4731491E253F12BD005B5CFC /* 3mm.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,9 +268,23 @@
 		47314914253F1148005B5CFC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				CC = /usr/local/opt/llvm/bin/clang;
+				CLANG_ENABLE_MODULES = NO;
+				CODE_SIGN_ENTITLEMENTS = 3MatrixMultiplex/3MatrixMultiplex.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development: letzdropthebas@gmail.com (UNZ425ZJS6)";
+				CODE_SIGN_STYLE = Manual;
+				COMPILER_INDEX_STORE_ENABLE = NO;
 				DEVELOPMENT_TEAM = 3CF49YC524;
 				ENABLE_HARDENED_RUNTIME = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/llvm/10.0.1_2/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_CFLAGS = (
+					"-Xpreprocessor",
+					"-fopenmp",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -249,9 +292,24 @@
 		47314915253F1148005B5CFC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				CC = /usr/local/opt/llvm/bin/clang;
+				CLANG_ENABLE_MODULES = NO;
+				CODE_SIGN_ENTITLEMENTS = 3MatrixMultiplex/3MatrixMultiplex.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development: letzdropthebas@gmail.com (UNZ425ZJS6)";
+				CODE_SIGN_STYLE = Manual;
+				COMPILER_INDEX_STORE_ENABLE = NO;
 				DEVELOPMENT_TEAM = 3CF49YC524;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/llvm/10.0.1_2/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_CFLAGS = (
+					"-Xpreprocessor",
+					"-fopenmp",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
