@@ -10,6 +10,7 @@
 		47314919253F118D005B5CFC /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 47314918253F118D005B5CFC /* libomp.dylib */; };
 		4731491A253F1258005B5CFC /* libomp.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 47314918253F118D005B5CFC /* libomp.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4731491E253F12BD005B5CFC /* 3mm.c in Sources */ = {isa = PBXBuildFile; fileRef = 4731491D253F12BD005B5CFC /* 3mm.c */; };
+		47577EBA25404B8700704F54 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 47577EB925404B8700704F54 /* Makefile */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +45,9 @@
 		47577EB225404A1F00704F54 /* html */ = {isa = PBXFileReference; lastKnownFileType = folder; path = html; sourceTree = "<group>"; };
 		47577EB325404A1F00704F54 /* latex */ = {isa = PBXFileReference; lastKnownFileType = folder; path = latex; sourceTree = "<group>"; };
 		47577EB425404A1F00704F54 /* man */ = {isa = PBXFileReference; lastKnownFileType = folder; path = man; sourceTree = "<group>"; };
+		47577EB725404B5E00704F54 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		47577EB825404B5E00704F54 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		47577EB925404B8700704F54 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +65,9 @@
 		47314903253F1147005B5CFC = {
 			isa = PBXGroup;
 			children = (
+				47577EB925404B8700704F54 /* Makefile */,
+				47577EB825404B5E00704F54 /* .gitignore */,
+				47577EB725404B5E00704F54 /* README.md */,
 				47577EAF25403A5600704F54 /* Docs */,
 				4731490E253F1148005B5CFC /* 3MatrixMultiplex */,
 				4731490D253F1148005B5CFC /* Products */,
@@ -161,6 +168,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47577EBA25404B8700704F54 /* Makefile in Sources */,
 				4731491E253F12BD005B5CFC /* 3mm.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
