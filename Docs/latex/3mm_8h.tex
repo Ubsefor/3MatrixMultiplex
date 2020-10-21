@@ -1,0 +1,188 @@
+\hypertarget{3mm_8h}{}\doxysection{3Matrix\+Multiplex/3mm.h File Reference}
+\label{3mm_8h}\index{3MatrixMultiplex/3mm.h@{3MatrixMultiplex/3mm.h}}
+
+
+Header file with function definitions.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$sys/time.\+h$>$}\newline
+{\ttfamily \#include $<$omp.\+h$>$}\newline
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{3mm_8h_acd532f688378febc70bf2aedccd9bb60}\label{3mm_8h_acd532f688378febc70bf2aedccd9bb60}} 
+\#define {\bfseries T\+H\+R\+E\+A\+D\+\_\+\+N\+UM}~16
+\item 
+\mbox{\Hypertarget{3mm_8h_a208dde44ccb391b56cef3bc30dcd89e0}\label{3mm_8h_a208dde44ccb391b56cef3bc30dcd89e0}} 
+\#define {\bfseries \+\_\+3\+M\+M\+\_\+H}
+\item 
+\mbox{\Hypertarget{3mm_8h_af1fea01b66d380c67909932dc0407e9b}\label{3mm_8h_af1fea01b66d380c67909932dc0407e9b}} 
+\#define {\bfseries L\+A\+R\+G\+E\+\_\+\+D\+A\+T\+A\+S\+ET}
+\item 
+\mbox{\Hypertarget{3mm_8h_a860bedb684529775463fa3a6cb467efa}\label{3mm_8h_a860bedb684529775463fa3a6cb467efa}} 
+\#define {\bfseries NI}~800
+\item 
+\mbox{\Hypertarget{3mm_8h_a54d192202ec35a6e951846dffbbb0c0f}\label{3mm_8h_a54d192202ec35a6e951846dffbbb0c0f}} 
+\#define {\bfseries NJ}~900
+\item 
+\mbox{\Hypertarget{3mm_8h_ad7c4af50d6edb05be6d9179037157a37}\label{3mm_8h_ad7c4af50d6edb05be6d9179037157a37}} 
+\#define {\bfseries NK}~1000
+\item 
+\mbox{\Hypertarget{3mm_8h_a4fc34b120ed3bd1120c1eb36abbcd6af}\label{3mm_8h_a4fc34b120ed3bd1120c1eb36abbcd6af}} 
+\#define {\bfseries NL}~1100
+\item 
+\mbox{\Hypertarget{3mm_8h_a845196f46a897dd3c2996fc3e45f2161}\label{3mm_8h_a845196f46a897dd3c2996fc3e45f2161}} 
+\#define {\bfseries NM}~1200
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{3mm_8h_a2112336335c7b47b334b6d55b7e3085a}\label{3mm_8h_a2112336335c7b47b334b6d55b7e3085a}} 
+double {\bfseries rtclock} ()
+\item 
+\mbox{\Hypertarget{3mm_8h_ab2feef22b8680d1554bbd90948798814}\label{3mm_8h_ab2feef22b8680d1554bbd90948798814}} 
+void \mbox{\hyperlink{3mm_8h_ab2feef22b8680d1554bbd90948798814}{bench\+\_\+timer\+\_\+start}} (void)
+\begin{DoxyCompactList}\small\item\em Benchmark timer starter. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{3mm_8h_abc89743396116f5cf34938bb6435d9ab}\label{3mm_8h_abc89743396116f5cf34938bb6435d9ab}} 
+void \mbox{\hyperlink{3mm_8h_abc89743396116f5cf34938bb6435d9ab}{bench\+\_\+timer\+\_\+stop}} (void)
+\begin{DoxyCompactList}\small\item\em Benchmark timer stopper. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{3mm_8h_ac32c9447f46b2e92f6d07bf33358bda2}\label{3mm_8h_ac32c9447f46b2e92f6d07bf33358bda2}} 
+void \mbox{\hyperlink{3mm_8h_ac32c9447f46b2e92f6d07bf33358bda2}{bench\+\_\+timer\+\_\+print}} (void)
+\begin{DoxyCompactList}\small\item\em Benchmark timer printer. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{3mm_8h_ac7236fa877326eaf7f53560502d2a6f2}{init\+\_\+array}} (int ni, int nj, int nk, int nl, int nm, float A\mbox{[}ni\mbox{]}\mbox{[}nk\mbox{]}, float B\mbox{[}nk\mbox{]}\mbox{[}nj\mbox{]}, float C\mbox{[}nj\mbox{]}\mbox{[}nm\mbox{]}, float D\mbox{[}nm\mbox{]}\mbox{[}nl\mbox{]})
+\item 
+void \mbox{\hyperlink{3mm_8h_abfef8afa5b8178e3a7e1d3e0d8a26b6b}{print\+\_\+array}} (int ni, int nl, float G\mbox{[}ni\mbox{]}\mbox{[}nl\mbox{]})
+\item 
+void \mbox{\hyperlink{3mm_8h_ab4943af3386b260d9d5d6070173a7ac4}{kernel\+\_\+3mm}} (int ni, int nj, int nk, int nl, int nm, float E\mbox{[}ni\mbox{]}\mbox{[}nj\mbox{]}, float A\mbox{[}ni\mbox{]}\mbox{[}nk\mbox{]}, float B\mbox{[}nk\mbox{]}\mbox{[}nj\mbox{]}, float F\mbox{[}nj\mbox{]}\mbox{[}nl\mbox{]}, float C\mbox{[}nj\mbox{]}\mbox{[}nm\mbox{]}, float D\mbox{[}nm\mbox{]}\mbox{[}nl\mbox{]}, float G\mbox{[}ni\mbox{]}\mbox{[}nl\mbox{]})
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{3mm_8h_a55c10bf2b4d4a487d185f826d5a0268a}\label{3mm_8h_a55c10bf2b4d4a487d185f826d5a0268a}} 
+double {\bfseries bench\+\_\+t\+\_\+start}
+\item 
+\mbox{\Hypertarget{3mm_8h_ab205a0034bd700fea86c5e5dfba8b3c1}\label{3mm_8h_ab205a0034bd700fea86c5e5dfba8b3c1}} 
+double {\bfseries bench\+\_\+t\+\_\+end}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Header file with function definitions. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{3mm_8h_ac7236fa877326eaf7f53560502d2a6f2}\label{3mm_8h_ac7236fa877326eaf7f53560502d2a6f2}} 
+\index{3mm.h@{3mm.h}!init\_array@{init\_array}}
+\index{init\_array@{init\_array}!3mm.h@{3mm.h}}
+\doxysubsubsection{\texorpdfstring{init\_array()}{init\_array()}}
+{\footnotesize\ttfamily void init\+\_\+array (\begin{DoxyParamCaption}\item[{int}]{ni,  }\item[{int}]{nj,  }\item[{int}]{nk,  }\item[{int}]{nl,  }\item[{int}]{nm,  }\item[{float}]{A\mbox{[}ni\mbox{]}\mbox{[}nk\mbox{]},  }\item[{float}]{B\mbox{[}nk\mbox{]}\mbox{[}nj\mbox{]},  }\item[{float}]{C\mbox{[}nj\mbox{]}\mbox{[}nm\mbox{]},  }\item[{float}]{D\mbox{[}nm\mbox{]}\mbox{[}nl\mbox{]} }\end{DoxyParamCaption})}
+
+Initializes arrays for matrixes \begin{DoxyAuthor}{Author}
+Ubsefor 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0.\+1 
+\end{DoxyVersion}
+
+\begin{DoxyParams}{Parameters}
+{\em ni} & Lenght of matrix A \\
+\hline
+{\em nk} & Height of matrix A, Length of matrix B \\
+\hline
+{\em nj} & Height of matrix B, Length of matrix C \\
+\hline
+{\em nm} & Height of matrix C, Length of matrix D \\
+\hline
+{\em nl} & Height of matrix D \\
+\hline
+{\em A} & A Matrix to initialize \\
+\hline
+{\em B} & B Matrix to initialize \\
+\hline
+{\em C} & C Matrix to initialize \\
+\hline
+{\em D} & D Matrix to initialize \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 26 of file 3mm.\+c.
+
+\mbox{\Hypertarget{3mm_8h_ab4943af3386b260d9d5d6070173a7ac4}\label{3mm_8h_ab4943af3386b260d9d5d6070173a7ac4}} 
+\index{3mm.h@{3mm.h}!kernel\_3mm@{kernel\_3mm}}
+\index{kernel\_3mm@{kernel\_3mm}!3mm.h@{3mm.h}}
+\doxysubsubsection{\texorpdfstring{kernel\_3mm()}{kernel\_3mm()}}
+{\footnotesize\ttfamily void kernel\+\_\+3mm (\begin{DoxyParamCaption}\item[{int}]{ni,  }\item[{int}]{nj,  }\item[{int}]{nk,  }\item[{int}]{nl,  }\item[{int}]{nm,  }\item[{float}]{E\mbox{[}ni\mbox{]}\mbox{[}nj\mbox{]},  }\item[{float}]{A\mbox{[}ni\mbox{]}\mbox{[}nk\mbox{]},  }\item[{float}]{B\mbox{[}nk\mbox{]}\mbox{[}nj\mbox{]},  }\item[{float}]{F\mbox{[}nj\mbox{]}\mbox{[}nl\mbox{]},  }\item[{float}]{C\mbox{[}nj\mbox{]}\mbox{[}nm\mbox{]},  }\item[{float}]{D\mbox{[}nm\mbox{]}\mbox{[}nl\mbox{]},  }\item[{float}]{G\mbox{[}ni\mbox{]}\mbox{[}nl\mbox{]} }\end{DoxyParamCaption})}
+
+Kernel for multiplication of matrixes \begin{DoxyAuthor}{Author}
+Ubsefor 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0.\+1 
+\end{DoxyVersion}
+
+\begin{DoxyParams}{Parameters}
+{\em ni} & Length of matrixes E, A, G \\
+\hline
+{\em nj} & Height of matrixes E, B; Length of matrixes F, C \\
+\hline
+{\em nk} & Height of matrix A; Lenght of matrix B \\
+\hline
+{\em nl} & Height of matrixes F, D, G \\
+\hline
+{\em nm} & Height of matrix C; Length of matrix D \\
+\hline
+{\em A} & Matrix A pre inited \\
+\hline
+{\em B} & Matrix B pre inited \\
+\hline
+{\em C} & Matrix C pre inited \\
+\hline
+{\em D} & Matrix D pre inited \\
+\hline
+{\em E} & Resultig matrix of A$\ast$B \\
+\hline
+{\em F} & Resulting matrix of C$\ast$D \\
+\hline
+{\em G} & Resulting matrix of E$\ast$F \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 74 of file 3mm.\+c.
+
+\mbox{\Hypertarget{3mm_8h_abfef8afa5b8178e3a7e1d3e0d8a26b6b}\label{3mm_8h_abfef8afa5b8178e3a7e1d3e0d8a26b6b}} 
+\index{3mm.h@{3mm.h}!print\_array@{print\_array}}
+\index{print\_array@{print\_array}!3mm.h@{3mm.h}}
+\doxysubsubsection{\texorpdfstring{print\_array()}{print\_array()}}
+{\footnotesize\ttfamily void print\+\_\+array (\begin{DoxyParamCaption}\item[{int}]{ni,  }\item[{int}]{nl,  }\item[{float}]{G\mbox{[}ni\mbox{]}\mbox{[}nl\mbox{]} }\end{DoxyParamCaption})}
+
+Dumps arrays into S\+T\+D\+IN \begin{DoxyAuthor}{Author}
+Ubsefor 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0.\+0 
+\end{DoxyVersion}
+\begin{DoxyWarning}{Warning}
+For debug only 
+\end{DoxyWarning}
+
+\begin{DoxyParams}{Parameters}
+{\em ni} & Matrix length \\
+\hline
+{\em nl} & Matrix height \\
+\hline
+{\em G} & Matrix itself \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 56 of file 3mm.\+c.
+

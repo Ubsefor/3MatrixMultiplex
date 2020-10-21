@@ -1,0 +1,214 @@
+.TH "3MatrixMultiplex/3mm.h" 3 "Wed Oct 21 2020" "Version v1.0.1" "3MatrixMultiplex" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+3MatrixMultiplex/3mm.h \- Header file with function definitions\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <math\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+\fC#include <sys/time\&.h>\fP
+.br
+\fC#include <omp\&.h>\fP
+.br
+
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBTHREAD_NUM\fP   16"
+.br
+.ti -1c
+.RI "#define \fB_3MM_H\fP"
+.br
+.ti -1c
+.RI "#define \fBLARGE_DATASET\fP"
+.br
+.ti -1c
+.RI "#define \fBNI\fP   800"
+.br
+.ti -1c
+.RI "#define \fBNJ\fP   900"
+.br
+.ti -1c
+.RI "#define \fBNK\fP   1000"
+.br
+.ti -1c
+.RI "#define \fBNL\fP   1100"
+.br
+.ti -1c
+.RI "#define \fBNM\fP   1200"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "double \fBrtclock\fP ()"
+.br
+.ti -1c
+.RI "void \fBbench_timer_start\fP (void)"
+.br
+.RI "Benchmark timer starter\&. "
+.ti -1c
+.RI "void \fBbench_timer_stop\fP (void)"
+.br
+.RI "Benchmark timer stopper\&. "
+.ti -1c
+.RI "void \fBbench_timer_print\fP (void)"
+.br
+.RI "Benchmark timer printer\&. "
+.ti -1c
+.RI "void \fBinit_array\fP (int ni, int nj, int nk, int nl, int nm, float A[ni][nk], float B[nk][nj], float C[nj][nm], float D[nm][nl])"
+.br
+.ti -1c
+.RI "void \fBprint_array\fP (int ni, int nl, float G[ni][nl])"
+.br
+.ti -1c
+.RI "void \fBkernel_3mm\fP (int ni, int nj, int nk, int nl, int nm, float E[ni][nj], float A[ni][nk], float B[nk][nj], float F[nj][nl], float C[nj][nm], float D[nm][nl], float G[ni][nl])"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "double \fBbench_t_start\fP"
+.br
+.ti -1c
+.RI "double \fBbench_t_end\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Header file with function definitions\&. 
+
+
+.PP
+Definition in file \fB3mm\&.h\fP\&.
+.SH "Function Documentation"
+.PP 
+.SS "void init_array (int ni, int nj, int nk, int nl, int nm, float A[ni][nk], float B[nk][nj], float C[nj][nm], float D[nm][nl])"
+Initializes arrays for matrixes 
+.PP
+\fBAuthor\fP
+.RS 4
+Ubsefor 
+.RE
+.PP
+\fBVersion\fP
+.RS 4
+1\&.0\&.1 
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIni\fP Lenght of matrix A 
+.br
+\fInk\fP Height of matrix A, Length of matrix B 
+.br
+\fInj\fP Height of matrix B, Length of matrix C 
+.br
+\fInm\fP Height of matrix C, Length of matrix D 
+.br
+\fInl\fP Height of matrix D 
+.br
+\fIA\fP A Matrix to initialize 
+.br
+\fIB\fP B Matrix to initialize 
+.br
+\fIC\fP C Matrix to initialize 
+.br
+\fID\fP D Matrix to initialize 
+.RE
+.PP
+
+.PP
+Definition at line 26 of file 3mm\&.c\&.
+.SS "void kernel_3mm (int ni, int nj, int nk, int nl, int nm, float E[ni][nj], float A[ni][nk], float B[nk][nj], float F[nj][nl], float C[nj][nm], float D[nm][nl], float G[ni][nl])"
+Kernel for multiplication of matrixes 
+.PP
+\fBAuthor\fP
+.RS 4
+Ubsefor 
+.RE
+.PP
+\fBVersion\fP
+.RS 4
+1\&.0\&.1 
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIni\fP Length of matrixes E, A, G 
+.br
+\fInj\fP Height of matrixes E, B; Length of matrixes F, C 
+.br
+\fInk\fP Height of matrix A; Lenght of matrix B 
+.br
+\fInl\fP Height of matrixes F, D, G 
+.br
+\fInm\fP Height of matrix C; Length of matrix D 
+.br
+\fIA\fP Matrix A pre inited 
+.br
+\fIB\fP Matrix B pre inited 
+.br
+\fIC\fP Matrix C pre inited 
+.br
+\fID\fP Matrix D pre inited 
+.br
+\fIE\fP Resultig matrix of A*B 
+.br
+\fIF\fP Resulting matrix of C*D 
+.br
+\fIG\fP Resulting matrix of E*F 
+.RE
+.PP
+
+.PP
+Definition at line 74 of file 3mm\&.c\&.
+.SS "void print_array (int ni, int nl, float G[ni][nl])"
+Dumps arrays into STDIN 
+.PP
+\fBAuthor\fP
+.RS 4
+Ubsefor 
+.RE
+.PP
+\fBVersion\fP
+.RS 4
+1\&.0\&.0 
+.RE
+.PP
+\fBWarning\fP
+.RS 4
+For debug only 
+.RE
+.PP
+\fBParameters\fP
+.RS 4
+\fIni\fP Matrix length 
+.br
+\fInl\fP Matrix height 
+.br
+\fIG\fP Matrix itself 
+.RE
+.PP
+
+.PP
+Definition at line 56 of file 3mm\&.c\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 3MatrixMultiplex from the source code\&.
