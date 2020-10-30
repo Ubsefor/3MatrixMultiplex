@@ -143,4 +143,6 @@ void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
                        float F[nj][nl], float C[nj][nm], float D[nm][nl],
                        float G[ni][nl] );
 
+int validate_param ( char *a );
+
 #endif /* _mm_h */
