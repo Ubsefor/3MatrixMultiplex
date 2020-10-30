@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4731491E253F12BD005B5CFC /* 3mm.c in Sources */ = {isa = PBXBuildFile; fileRef = 4731491D253F12BD005B5CFC /* 3mm.c */; };
 		475379DB254C36AC004F2C83 /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 475379DA254C36AC004F2C83 /* libomp.dylib */; };
+		47CB2CAA254C50EA00995A74 /* libomp.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 475379DA254C36AC004F2C83 /* libomp.dylib */; };
+		47CB2CAB254C510E00995A74 /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 475379DA254C36AC004F2C83 /* libomp.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,6 +29,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				47CB2CAA254C50EA00995A74 /* libomp.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -53,6 +56,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				475379DB254C36AC004F2C83 /* libomp.dylib in Frameworks */,
+				47CB2CAB254C510E00995A74 /* libomp.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,6 +330,7 @@
 					/usr/local/Cellar/llvm/11.0.0/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-Xpreprocessor",
 					"-fopenmp",
