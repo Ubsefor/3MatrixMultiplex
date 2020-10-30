@@ -64,6 +64,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
