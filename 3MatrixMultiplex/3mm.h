@@ -73,7 +73,7 @@
 
 double bench_t_start, bench_t_end;
 
-double rtclock()
+double rtclock( void )
 {
     struct timeval Tp;
     int            stat;

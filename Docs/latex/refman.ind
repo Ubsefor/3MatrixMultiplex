@@ -1,0 +1,24 @@
+\begin{theindex}
+
+  \item {3MatrixMultiplex/3mm.h}, \hyperpage{3}
+  \item {3mm.h}
+    \subitem {init\_array}, \hyperpage{4}
+    \subitem {kernel\_3mm}, \hyperpage{5}
+    \subitem {print\_array}, \hyperpage{5}
+
+  \indexspace
+
+  \item {init\_array}
+    \subitem {3mm.h}, \hyperpage{4}
+
+  \indexspace
+
+  \item {kernel\_3mm}
+    \subitem {3mm.h}, \hyperpage{5}
+
+  \indexspace
+
+  \item {print\_array}
+    \subitem {3mm.h}, \hyperpage{5}
+
+\end{theindex}

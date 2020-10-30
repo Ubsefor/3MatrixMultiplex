@@ -7,10 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		47314919253F118D005B5CFC /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 47314918253F118D005B5CFC /* libomp.dylib */; };
-		4731491A253F1258005B5CFC /* libomp.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 47314918253F118D005B5CFC /* libomp.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4731491E253F12BD005B5CFC /* 3mm.c in Sources */ = {isa = PBXBuildFile; fileRef = 4731491D253F12BD005B5CFC /* 3mm.c */; };
-		47577EBA25404B8700704F54 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 47577EB925404B8700704F54 /* Makefile */; };
+		475379DB254C36AC004F2C83 /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 475379DA254C36AC004F2C83 /* libomp.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,7 +27,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				4731491A253F1258005B5CFC /* libomp.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -38,10 +35,10 @@
 
 /* Begin PBXFileReference section */
 		4731490C253F1148005B5CFC /* 3MatrixMultiplex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = 3MatrixMultiplex; sourceTree = BUILT_PRODUCTS_DIR; };
-		47314918253F118D005B5CFC /* libomp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libomp.dylib; path = ../../../../../../../usr/local/Cellar/llvm/10.0.1_2/lib/libomp.dylib; sourceTree = "<group>"; };
 		4731491C253F12BD005B5CFC /* 3mm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = 3mm.h; sourceTree = "<group>"; };
 		4731491D253F12BD005B5CFC /* 3mm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = 3mm.c; sourceTree = "<group>"; };
 		4731491F253F1419005B5CFC /* 3MatrixMultiplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = 3MatrixMultiplex.entitlements; sourceTree = "<group>"; };
+		475379DA254C36AC004F2C83 /* libomp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libomp.dylib; path = ../../../../../../usr/local/Cellar/llvm/11.0.0/lib/libomp.dylib; sourceTree = "<group>"; };
 		47577EB225404A1F00704F54 /* html */ = {isa = PBXFileReference; lastKnownFileType = folder; path = html; sourceTree = "<group>"; };
 		47577EB325404A1F00704F54 /* latex */ = {isa = PBXFileReference; lastKnownFileType = folder; path = latex; sourceTree = "<group>"; };
 		47577EB425404A1F00704F54 /* man */ = {isa = PBXFileReference; lastKnownFileType = folder; path = man; sourceTree = "<group>"; };
@@ -55,7 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				47314919253F118D005B5CFC /* libomp.dylib in Frameworks */,
+				475379DB254C36AC004F2C83 /* libomp.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,7 +93,7 @@
 		47314917253F118D005B5CFC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				47314918253F118D005B5CFC /* libomp.dylib */,
+				475379DA254C36AC004F2C83 /* libomp.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -168,7 +165,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				47577EBA25404B8700704F54 /* Makefile in Sources */,
 				4731491E253F12BD005B5CFC /* 3mm.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,7 +296,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/llvm/10.0.1_2/lib,
+					/usr/local/Cellar/llvm/11.0.0/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = (
@@ -309,6 +305,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ispras.ubsefor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -326,7 +323,7 @@
 				GCC_OPTIMIZATION_LEVEL = fast;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/llvm/10.0.1_2/lib,
+					/usr/local/Cellar/llvm/11.0.0/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = (
@@ -335,6 +332,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ispras.ubsefor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
