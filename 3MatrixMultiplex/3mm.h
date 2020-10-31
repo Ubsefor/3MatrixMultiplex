@@ -94,55 +94,55 @@ void bench_timer_stop( void );
 void bench_timer_print( void );
 
 /*!
-     Initializes arrays for matrixes
-     @author Ubsefor
-     @version 1.0.1
-     @param ni Lenght of matrix A
-     @param nk Height of matrix A, Length of matrix B
-     @param nj Height of matrix B, Length of matrix C
-     @param nm Height of matrix C, Length of matrix D
-     @param nl Height of matrix D
-     @param A A Matrix to initialize
-     @param B B Matrix to initialize
-     @param C C Matrix to initialize
-     @param D D Matrix to initialize
-*/
+ Initializes arrays for matrixes
+ @author Ubsefor
+ @version 1.0.1
+ @param ni Lenght of matrix A
+ @param nk Height of matrix A, Length of matrix B
+ @param nj Height of matrix B, Length of matrix C
+ @param nm Height of matrix C, Length of matrix D
+ @param nl Height of matrix D
+ @param A A Matrix to initialize
+ @param B B Matrix to initialize
+ @param C C Matrix to initialize
+ @param D D Matrix to initialize
+ */
 void init_array( int ni, int nj, int nk, int nl, int nm,
-                       float A[ni][nk], float B[nk][nj],
-                       float C[nj][nm], float D[nm][nl] );
+                float A[ni][nk], float B[nk][nj],
+                float C[nj][nm], float D[nm][nl] );
 /*!
-     Dumps arrays into STDIN
-     @author Ubsefor
-     @version 1.0.0
-     @warning For debug only
-     @param ni Matrix length
-     @param nl Matrix height
-     @param G Matrix itself
-*/
+ Dumps arrays into STDIN
+ @author Ubsefor
+ @version 1.0.0
+ @warning For debug only
+ @param ni Matrix length
+ @param nl Matrix height
+ @param G Matrix itself
+ */
 void print_array( int ni, int nl, float G[ni][nl] );
 
 /*!
-     Kernel for multiplication of matrixes
-     @author Ubsefor
-     @version 1.0.1
-     @param ni Length of matrixes E, A, G
-     @param nj Height of matrixes E, B; Length of matrixes F, C
-     @param nk Height of matrix A; Lenght of matrix B
-     @param nl Height of matrixes F, D, G
-     @param nm Height of matrix C; Length of matrix D
-     @param A Matrix A pre inited
-     @param B Matrix B pre inited
-     @param C Matrix C pre inited
-     @param D Matrix D pre inited
-     @param E Resultig matrix of A*B
-     @param F Resulting matrix of C*D
-     @param G Resulting matrix of E*F
-*/
+ Kernel for multiplication of matrixes
+ @author Ubsefor
+ @version 1.0.1
+ @param ni Length of matrixes E, A, G
+ @param nj Height of matrixes E, B; Length of matrixes F, C
+ @param nk Height of matrix A; Lenght of matrix B
+ @param nl Height of matrixes F, D, G
+ @param nm Height of matrix C; Length of matrix D
+ @param A Matrix A pre inited
+ @param B Matrix B pre inited
+ @param C Matrix C pre inited
+ @param D Matrix D pre inited
+ @param E Resultig matrix of A*B
+ @param F Resulting matrix of C*D
+ @param G Resulting matrix of E*F
+ */
 void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
-                       float E[ni][nj], float A[ni][nk], float B[nk][nj],
-                       float F[nj][nl], float C[nj][nm], float D[nm][nl],
-                       float G[ni][nl] );
+                float E[ni][nj], float A[ni][nk], float B[nk][nj],
+                float F[nj][nl], float C[nj][nm], float D[nm][nl],
+                float G[ni][nl] );
 
-int validate_param ( char *a );
+int validate_param( char *a );
 
 #endif /* _mm_h */

@@ -7,11 +7,12 @@
 
 #include "3mm.h"
 
-int validate_param ( char *a )
+int validate_param( char *a )
 {
     unsigned x;
-    for ( x = 0; x < strlen ( a ); x++ )
-    if ( !isdigit ( a[x] ) ) return 1;
+    for ( x = 0; x < strlen( a ); x++ )
+    if ( !isdigit( a[x] ) )
+        return 1;
     return 0;
 }
 
@@ -32,8 +33,8 @@ void bench_timer_print( void )
 
 
 void init_array( int ni, int nj, int nk, int nl, int nm,
-                       float A[ni][nk], float B[nk][nj],
-                       float C[nj][nm], float D[nm][nl] )
+                float A[ni][nk], float B[nk][nj],
+                float C[nj][nm], float D[nm][nl] )
 {
     int i, j;
 #pragma omp parallel shared(A,B,C,D) private(i,j)
@@ -79,8 +80,8 @@ void print_array( int ni, int nl, float G[ni][nl] )
 
 
 void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
-                       float E[ni][nj], float A[ni][nk], float B[nk][nj],
-                       float F[nj][nl], float C[nj][nm], float D[nm][nl], float G[ni][nl] )
+                float E[ni][nj], float A[ni][nk], float B[nk][nj],
+                float F[nj][nl], float C[nj][nm], float D[nm][nl], float G[ni][nl] )
 {
     int i = 0, j = 0, k = 0;
 #pragma omp parallel shared(E,A,B,F,C,D,G) private(i,j,k)
@@ -115,24 +116,34 @@ void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
 
 int main( int argc, char** argv )
 {
-    if ( argc == 1 ) {
+    if ( argc == 1 )
+    {
         omp_set_num_threads( THREAD_NUM );
-    } else {
-        if ( (argv[1][0] == '-') && (argv[1][1] == 'h') ){
-            printf("You can launch the program without args.\nOr you can provide an integer to specify the amount of threads to use in calculation.\nThe default setting is %u threads.\n", THREAD_NUM);
+    }
+    else
+    {
+        if ( ( argv[1][0] == '-' ) && ( argv[1][1] == 'h' ) )
+        {
+            printf( "You can launch the program without args.\nOr you can provide an integer to specify the amount of threads to use in calculation.\nThe default setting is %u threads.\n", THREAD_NUM );
             return 0;
         }
         
-        if ( !validate_param( argv[1] ) ){
+        if ( !validate_param( argv[1] ) )
+        {
             int numothreads = atoi( argv[1] );
-            if ( numothreads <= 0 ) {
+            if ( numothreads <= 0 )
+            {
                 omp_set_num_threads( THREAD_NUM );
-            } else omp_set_num_threads( numothreads );
-        } else {
-            printf("The number of threads you entered is errorneous!\nPlease enter a valid integer next time!\nSetting default specified threads: %u\n", THREAD_NUM);
+            }
+            else
+                omp_set_num_threads( numothreads );
+        }
+        else
+        {
+            printf( "The number of threads you entered is errorneous!\nPlease enter a valid integer next time!\nSetting default specified threads: %u\n", THREAD_NUM );
         }
     }
-        
+    
     
     int ni = NI;
     int nj = NJ;
@@ -179,6 +190,6 @@ int main( int argc, char** argv )
     free( (void*) D );
     free( (void*) G );
     
-    printf("Just finished!\n");
+    printf( "Just finished!\n" );
     return 0;
 }
