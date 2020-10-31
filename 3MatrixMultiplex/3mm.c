@@ -145,6 +145,7 @@ int main( int argc, char** argv )
     }
     
     
+    
     int ni = NI;
     int nj = NJ;
     int nk = NK;
