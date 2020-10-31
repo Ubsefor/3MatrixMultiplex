@@ -19,9 +19,11 @@
 
 #ifndef _3MM_H
 #define _3MM_H
+
 # if !defined ( MINI_DATASET ) && !defined ( SMALL_DATASET ) && !defined ( MEDIUM_DATASET ) && !defined ( LARGE_DATASET ) && !defined ( EXTRALARGE_DATASET )
 #define LARGE_DATASET
 # endif
+
 # if !defined ( NI ) && !defined ( NJ ) && !defined ( NK ) && !defined ( NL ) && !defined ( NM )
 # ifdef MINI_DATASET
 #define NI    16
@@ -58,7 +60,9 @@
 #define NL    2200
 #define NM    2400
 # endif
+
 #endif
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
