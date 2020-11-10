@@ -3,13 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 53;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		4731491E253F12BD005B5CFC /* 3mm.c in Sources */ = {isa = PBXBuildFile; fileRef = 4731491D253F12BD005B5CFC /* 3mm.c */; };
-		475379DB254C36AC004F2C83 /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 475379DA254C36AC004F2C83 /* libomp.dylib */; };
-		47CB2CAA254C50EA00995A74 /* libomp.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 475379DA254C36AC004F2C83 /* libomp.dylib */; };
+		47CB2CAA254C50EA00995A74 /* libomp.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 475379DA254C36AC004F2C83 /* libomp.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		47CB2CAB254C510E00995A74 /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 475379DA254C36AC004F2C83 /* libomp.dylib */; };
 /* End PBXBuildFile section */
 
@@ -55,7 +54,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				475379DB254C36AC004F2C83 /* libomp.dylib in Frameworks */,
 				47CB2CAB254C510E00995A74 /* libomp.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -139,6 +137,7 @@
 		47314904253F1147005B5CFC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					4731490B253F1148005B5CFC = {

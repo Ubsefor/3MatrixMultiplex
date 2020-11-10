@@ -36,44 +36,41 @@ void init_array( int ni, int nj, int nk, int nl, int nm,
                 float A[ni][nk], float B[nk][nj],
                 float C[nj][nm], float D[nm][nl] )
 {
-    int i, j;
-#pragma omp parallel shared(A,B,C,D) private(i,j)
+#pragma omp parallel shared(A,B,C,D)
     {
 #pragma omp for  schedule(static)
-        for ( i = 0; i < ni; i++ )
-        for ( j = 0; j < nk; j++ )
-        A[i][j] = (float) ( ( i * j + 1 ) % ni ) / ( 5 * ni );
+        for ( int i = 0; i < ni; i++ )
+            for ( int j = 0; j < nk; j++ )
+                A[i][j] = (float) ( ( i * j + 1 ) % ni ) / ( 5 * ni );
         
 #pragma omp for  schedule(static)
-        for ( i = 0; i < nk; i++ )
-        for ( j = 0; j < nj; j++ )
-        B[i][j] = (float) ( ( i * ( j + 1 ) + 2 ) % nj ) / ( 5 * nj );
+        for ( int i = 0; i < nk; i++ )
+            for ( int j = 0; j < nj; j++ )
+                B[i][j] = (float) ( ( i * ( j + 1 ) + 2 ) % nj ) / ( 5 * nj );
         
 #pragma omp for  schedule(static)
-        for ( i = 0; i < nj; i++ )
-        for ( j = 0; j < nm; j++ )
-        C[i][j] = (float) ( i * ( j + 3 ) % nl ) / ( 5 * nl );
+        for ( int i = 0; i < nj; i++ )
+            for ( int j = 0; j < nm; j++ )
+                C[i][j] = (float) ( i * ( j + 3 ) % nl ) / ( 5 * nl );
         
 #pragma omp for  schedule(static)
-        for ( i = 0; i < nm; i++ )
-        for ( j = 0; j < nl; j++ )
-        D[i][j] = (float) ( ( i * ( j + 2 ) + 2 ) % nk ) / ( 5 * nk );
+        for ( int i = 0; i < nm; i++ )
+            for ( int j = 0; j < nl; j++ )
+                D[i][j] = (float) ( ( i * ( j + 2 ) + 2 ) % nk ) / ( 5 * nk );
     }
 }
 
 void print_array( int ni, int nl, float G[ni][nl] )
 {
-    int i, j;
-    
     fprintf( stderr, "==BEGIN DUMP_ARRAYS==\n" );
     fprintf( stderr, "begin dump: %s", "G" );
-    for ( i = 0; i < ni; i++ )
-    for ( j = 0; j < nl; j++ )
-    {
-        if ( ( i * ni + j ) % 20 == 0 )
-            fprintf( stderr, "\n" );
-        fprintf( stderr, "%0.2f ", G[i][j] );
-    }
+    for ( int i = 0; i < ni; i++ )
+        for ( int j = 0; j < nl; j++ )
+        {
+            if ( ( i * ni + j ) % 20 == 0 )
+                fprintf( stderr, "\n" );
+            fprintf( stderr, "%0.2f ", G[i][j] );
+        }
     fprintf( stderr, "\nend   dump: %s\n", "G" );
     fprintf( stderr, "==END   DUMP_ARRAYS==\n" );
 }
@@ -83,34 +80,33 @@ void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
                 float E[ni][nj], float A[ni][nk], float B[nk][nj],
                 float F[nj][nl], float C[nj][nm], float D[nm][nl], float G[ni][nl] )
 {
-    int i = 0, j = 0, k = 0;
-#pragma omp parallel shared(E,A,B,F,C,D,G) private(i,j,k)
+#pragma omp parallel shared(E,A,B,F,C,D,G)
     {
 #pragma omp for  schedule(static)
-        for ( i = 0; i < ni; i++ )
-        for ( j = 0; j < nj; j++ )
-        {
-            E[i][j] = 0.0f;
-            for ( k = 0; k < nk; ++k )
-            E[i][j] += A[i][k] * B[k][j];
-        }
+        for ( int i = 0; i < ni; i++ )
+            for ( int j = 0; j < nj; j++ )
+            {
+                E[i][j] = 0.0f;
+                for ( int k = 0; k < nk; ++k )
+                E[i][j] += A[i][k] * B[k][j];
+            }
 #pragma omp for  schedule(static)
-        for ( i = 0; i < nj; i++ )
-        for ( j = 0; j < nl; j++ )
-        {
-            F[i][j] = 0.0f;
-            for ( k = 0; k < nm; ++k )
-            F[i][j] += C[i][k] * D[k][j];
-        }
+        for ( int i = 0; i < nj; i++ )
+            for ( int j = 0; j < nl; j++ )
+            {
+                F[i][j] = 0.0f;
+                for ( int k = 0; k < nm; ++k )
+                F[i][j] += C[i][k] * D[k][j];
+            }
         
 #pragma omp for  schedule(static)
-        for ( i = 0; i < ni; i++ )
-        for ( j = 0; j < nl; j++ )
-        {
-            G[i][j] = 0.0f;
-            for ( k = 0; k < nj; ++k )
-            G[i][j] += E[i][k] * F[k][j];
-        }
+        for ( int i = 0; i < ni; i++ )
+            for ( int j = 0; j < nl; j++ )
+            {
+                G[i][j] = 0.0f;
+                for ( int k = 0; k < nj; ++k )
+                G[i][j] += E[i][k] * F[k][j];
+            }
     }
 }
 
@@ -143,8 +139,6 @@ int main( int argc, char** argv )
             printf( "The number of threads you entered is errorneous!\nPlease enter a valid integer next time!\nSetting default specified threads: %u\n", THREAD_NUM );
         }
     }
-    
-    
     
     int ni = NI;
     int nj = NJ;
