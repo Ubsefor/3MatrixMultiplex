@@ -1,6 +1,11 @@
 
-
-all:
+help:
+	echo "Available makes: [noopt-]user, [noopt-]<dataset size>, clean, distclean"
+	echo "But bevare, dataset builds are less friendly"
+	echo "Clean option removes executable"
+	echo "Distclean also removes benchmarks"
+	
+user:
 	gcc -fopenmp -std=gnu11 -Wall -Wpedantic -Ofast 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
 mini:
@@ -18,7 +23,7 @@ large:
 extra:
 	gcc -fopenmp -DEXTRALARGE_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -Ofast 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
-no-opt:
+noopt-user:
 	gcc -fopenmp -std=gnu11 -Wall -Wpedantic -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
 noopt-mini:
@@ -38,4 +43,8 @@ noopt-extra:
 	
 clean:
 	rm *-exe
+	
+distclean:
+	rm *-exe
+	rm -rf benchmarks
 
