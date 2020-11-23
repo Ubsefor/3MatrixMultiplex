@@ -6,7 +6,7 @@
 #  Created by Alexander Makhov on 24/11/20.
 #  
 
-DATASET=("mini" "small" "medium" "large" "extralarge")
+DATASET=("mini" "small" "medium" "large" "extra")
 
 echo "Preparing to run benchmarks..."
 
@@ -19,13 +19,14 @@ fi
 
 BENCHPATH=./benchmarks/noopt/
 
-mkdir -p BENCHPATH
+mkdir -p $BENCHPATH
 
 for bench in ${DATASET[*]}; do
     make noopt-$bench ;
     for i in 0..10; do
-        ./3MatrixMultiplex-exe 2**i >> BENCHPATH/$bench ;
-        echo "\n" >> BENCHPATH/$bench
+        threads=2**i
+        ./3MatrixMultiplex-exe $threads >> $BENCHPATH/$bench ;
+        echo "" >> $BENCHPATH/$bench
     done
 done
 
@@ -39,13 +40,14 @@ else
 fi
 
 BENCHPATH=benchmarks/ofast/
-mkdir -p BENCHPATH
+mkdir -p $BENCHPATH
 
 for bench in ${DATASET[*]}; do
     make $bench ;
     for i in 0..10; do
-        ./3MatrixMultiplex-exe 2**i >> BENCHPATH/$bench ;
-        echo "\n" >> BENCHPATH/$bench
+        threads=2**i
+        ./3MatrixMultiplex-exe $threads >> $BENCHPATH/$bench ;
+        echo "" >> $BENCHPATH/$bench
     done
 done
 
