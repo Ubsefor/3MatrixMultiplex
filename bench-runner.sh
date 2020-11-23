@@ -24,8 +24,7 @@ mkdir -p $BENCHPATH
 for bench in ${DATASET[*]}; do
     make noopt-$bench ;
     for i in 0..10; do
-        threads=2**i
-        ./3MatrixMultiplex-exe $threads >> $BENCHPATH/$bench ;
+        ./3MatrixMultiplex-exe $((2**i)) >> $BENCHPATH/$bench ;
         echo "" >> $BENCHPATH/$bench
     done
 done
@@ -45,8 +44,7 @@ mkdir -p $BENCHPATH
 for bench in ${DATASET[*]}; do
     make $bench ;
     for i in 0..10; do
-        threads=2**i
-        ./3MatrixMultiplex-exe $threads >> $BENCHPATH/$bench ;
+        ./3MatrixMultiplex-exe $((2**i)) >> $BENCHPATH/$bench ;
         echo "" >> $BENCHPATH/$bench
     done
 done
