@@ -189,7 +189,7 @@ int main( int argc, char** argv )
     free( (void*) D );
     free( (void*) G );
     
-#ifdef BENCH
+#ifndef BENCH
     printf( "Just finished!\n" );
 #endif
     return 0;
