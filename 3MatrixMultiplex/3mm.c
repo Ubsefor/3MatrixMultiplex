@@ -28,7 +28,11 @@ void bench_timer_stop( void )
 
 void bench_timer_print( void )
 {
+#ifdef BENCH
     printf( "Time in seconds = %0.6lf\n", bench_t_end - bench_t_start );
+#else
+    printf( "%0.6lf\n", bench_t_end - bench_t_start );
+#endif
 }
 
 
@@ -185,6 +189,8 @@ int main( int argc, char** argv )
     free( (void*) D );
     free( (void*) G );
     
+#ifdef BENCH
     printf( "Just finished!\n" );
+#endif
     return 0;
 }
