@@ -171,7 +171,6 @@ int main( int argc, char** argv )
                *D,
                *G );
     
-    
     bench_timer_stop();
     bench_timer_print();
     
