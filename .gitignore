@@ -41,6 +41,7 @@
 *.su
 *.idb
 *.pdb
+*.sym
 
 # Kernel Module Compile Results
 *.mod*
@@ -54,3 +55,6 @@ dkms.conf
 DerivedData
 Build
 .DS_Store
+.vscode
+.nova
+*.out
