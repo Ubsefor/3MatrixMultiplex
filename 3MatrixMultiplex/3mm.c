@@ -88,7 +88,7 @@ void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
             {
                 E[i][j] = 0.0f;
                 for ( int k = 0; k < nk; ++k )
-                E[i][j] += A[i][k] * B[k][j];
+                    E[i][j] += A[i][k] * B[k][j];
             }
 #pragma omp for  schedule(static)
         for ( int i = 0; i < nj; i++ )
@@ -96,7 +96,7 @@ void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
             {
                 F[i][j] = 0.0f;
                 for ( int k = 0; k < nm; ++k )
-                F[i][j] += C[i][k] * D[k][j];
+                    F[i][j] += C[i][k] * D[k][j];
             }
         
 #pragma omp for  schedule(static)
@@ -105,7 +105,7 @@ void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
             {
                 G[i][j] = 0.0f;
                 for ( int k = 0; k < nj; ++k )
-                G[i][j] += E[i][k] * F[k][j];
+                    G[i][j] += E[i][k] * F[k][j];
             }
     }
 }
