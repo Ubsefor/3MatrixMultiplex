@@ -10,25 +10,33 @@ DATASET=("mini" "small" "medium" "large" "extralarge")
 
 echo "Preparing to run benchmarks..."
 
-if make no-opt ; then
+if make noopt-user ; then
     echo "Seems to compile noopt successfully"
 else
     echo "Compilation of noopt returned error!"
+    exit -1;
 fi
 
-BENCHPATH=benchmarks/noopt/
+BENCHPATH=./benchmarks/noopt/
 
 mkdir -p BENCHPATH
 
 for bench in ${DATASET[*]}; do
     make noopt-$bench ;
     for i in 0..10; do
-        3MatrixMultiplex-exe 2**i >> BENCHPATH/$bench ;
+        ./3MatrixMultiplex-exe 2**i >> BENCHPATH/$bench ;
         echo "\n" >> BENCHPATH/$bench
     done
 done
 
 echo "Done noopt benchmarks!"
+
+if make user ; then
+    echo "Seems to compile noopt successfully"
+else
+    echo "Compilation of noopt returned error!"
+    exit -1;
+fi
 
 BENCHPATH=benchmarks/ofast/
 mkdir -p BENCHPATH
@@ -36,7 +44,7 @@ mkdir -p BENCHPATH
 for bench in ${DATASET[*]}; do
     make $bench ;
     for i in 0..10; do
-        3MatrixMultiplex-exe 2**i >> BENCHPATH/$bench ;
+        ./3MatrixMultiplex-exe 2**i >> BENCHPATH/$bench ;
         echo "\n" >> BENCHPATH/$bench
     done
 done
