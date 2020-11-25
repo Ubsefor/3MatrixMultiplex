@@ -32,7 +32,7 @@ done
 echo "Done noopt benchmarks!"
 
 if make user ; then
-    echo "Seems to compile noopt successfully"
+    echo "Seems to compile optimized successfully"
 else
     echo "Compilation of noopt returned error!"
     exit -1;

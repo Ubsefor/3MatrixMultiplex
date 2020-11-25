@@ -65,8 +65,8 @@
 		47314903253F1147005B5CFC = {
 			isa = PBXGroup;
 			children = (
-				4773A212256C6CFD00ED9309 /* bench-runner.sh */,
 				47577EB925404B8700704F54 /* Makefile */,
+				4773A212256C6CFD00ED9309 /* bench-runner.sh */,
 				47577EB825404B5E00704F54 /* .gitignore */,
 				47577EB725404B5E00704F54 /* README.md */,
 				47577EAF25403A5600704F54 /* Docs */,

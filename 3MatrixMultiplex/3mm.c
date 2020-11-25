@@ -116,6 +116,24 @@ void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
 
 int main( int argc, char** argv )
 {
+#ifndef BENCH
+#ifdef MINI_DATASET
+    printf("Mini dataset selected...\n");
+#endif
+#ifdef SMALL_DATASET
+    printf("Small dataset selected...\n");
+#endif
+#ifdef MEDIUM_DATASET
+    printf("Medium dataset selected...\n");
+#endif
+#ifdef LARGE_DATASET
+    printf("Large dataset selected...\n");
+#endif
+#ifdef EXTRALARGE_DATASET
+    printf("Extra dataset selected...\n");
+#endif
+#endif
+
     if ( argc == 1 )
     {
         omp_set_num_threads( THREAD_NUM );
