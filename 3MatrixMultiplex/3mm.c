@@ -25,7 +25,11 @@ void MPI_timer_end( void ){
 }
 
 void MPI_timer_print( void ){
+#ifndef BENCH
     printf("time =  %lf seconds\n", mpi_t_end - mpi_t_start);
+#else
+    printf("%0.6lf\n", mpi_t_end - mpi_t_start);
+#endif
 }
 
 void bench_timer_start( void )
@@ -128,7 +132,9 @@ static void MPI_init_matrixes() {
         for ( int j = 0; j < nl; j++ )
         D[i][j] = (double) ( ( i * ( j + 2 ) + 2 ) % nk ) / ( 5 * nk );
         
+#ifndef BENCH
         printf("Init successful\n");
+#endif
     }
 }
 
@@ -148,7 +154,9 @@ static void MPI_init_matrixes() {
 static void MPI_kernel_3mm() {
     if (taskid == MASTER)
     {
+#ifndef BENCH
         printf("MPI_kernel_3mm has started with %d tasks.\n",numtasks);
+#endif
         
         /* Measure start time */
         MPI_timer_start();
@@ -204,7 +212,9 @@ static void MPI_kernel_3mm() {
 #endif
             MPI_Recv(&E[offset][0], rows * NJ, MPI_DOUBLE, source, mtype,
                      MPI_COMM_WORLD, &status);
+#ifndef BENCH
             printf("Received results from task %d for matrix E, waiting for %d tasks\n",source, numworkers-i);
+#endif
         }
         
 #ifndef BENCH
@@ -263,7 +273,9 @@ static void MPI_kernel_3mm() {
 #endif
             MPI_Recv(&F[offset][0], rows * NL, MPI_DOUBLE, source, mtype,
                      MPI_COMM_WORLD, &status);
+#ifndef BENCH
             printf("Received results from task %d for matrix F\n",source);
+#endif
         }
         
 #ifndef BENCH
@@ -323,7 +335,9 @@ static void MPI_kernel_3mm() {
 #endif
             MPI_Recv(&G[offset][0], rows * NL, MPI_DOUBLE, source, mtype,
                      MPI_COMM_WORLD, &status);
+#ifndef BENCH
             printf("Received results from task %d\n for matrix G\n",source);
+#endif
         }
         
 #ifndef BENCH
