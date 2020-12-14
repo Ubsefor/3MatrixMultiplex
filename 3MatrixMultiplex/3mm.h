@@ -17,6 +17,10 @@
 
 #define THREAD_NUM    16
 
+#define MASTER 0               /* task id of first task  */
+#define FROM_MASTER 1          /* setting a message type */
+#define FROM_WORKER 2          /* setting a message type */
+
 #ifndef _3MM_H
 #define _3MM_H
 
@@ -72,11 +76,45 @@
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
-#include <omp.h>
+#include <mpi.h>
+#include <stdarg.h>
+#include <stdbool.h>
 
 #endif
 
-double bench_t_start, bench_t_end;
+double
+    bench_t_start, bench_t_end,
+    mpi_t_start, mpi_t_end;
+
+int mpi_comm_rank, mpi_comm_size;
+
+int ni = NI;
+int nj = NJ;
+int nk = NK;
+int nl = NL;
+int nm = NM;
+
+double E[NI][NJ];
+double A[NI][NK];
+double B[NK][NJ];
+double F[NJ][NL];
+double C[NJ][NM];
+double D[NM][NL];
+double G[NI][NL];
+
+int
+    numtasks,              /* number of tasks in partition */
+    taskid,                /* a task identifier */
+    numworkers,            /* number of worker tasks */
+    source,                /* task id of message source */
+    dest,                  /* task id of message destination */
+    mtype,                 /* message type */
+    rows,                  /* rows of matrix A sent to each worker */
+    averow, extra, offset, /* used to determine rows sent to each worker */
+    i, j, k, rc;           /* misc */
+
+MPI_Status status;
+
 
 double rtclock( void )
 {
@@ -123,7 +161,7 @@ void init_array( int ni, int nj, int nk, int nl, int nm,
  @param nl Matrix height
  @param G Matrix itself
  */
-void print_array( int ni, int nl, float G[ni][nl] );
+void print_array( int ni, int nl, double G[ni][nl] );
 
 /*!
  Kernel for multiplication of matrixes
@@ -143,9 +181,9 @@ void print_array( int ni, int nl, float G[ni][nl] );
  @param G Resulting matrix of E*F
  */
 void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
-                float E[ni][nj], float A[ni][nk], float B[nk][nj],
-                float F[nj][nl], float C[nj][nm], float D[nm][nl],
-                float G[ni][nl] );
+                double E[ni][nj], double A[ni][nk], double B[nk][nj],
+                double F[nj][nl], double C[nj][nm], double D[nm][nl],
+                double G[ni][nl] );
 
 int validate_param( char *a );
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1210"
+   LastUpgradeVersion = "1220"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -40,8 +40,11 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <PathRunnable
+         runnableDebuggingMode = "0"
+         FilePath = "/usr/local/Cellar/open-mpi/4.0.5/bin/orterun">
+      </PathRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4731490B253F1148005B5CFC"
@@ -49,10 +52,14 @@
             BlueprintName = "3MatrixMultiplex"
             ReferencedContainer = "container:3MatrixMultiplex.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-h"
+            argument = "-np 4"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(CONFIGURATION_BUILD_DIR)/3MatrixMultiplex"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
