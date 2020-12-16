@@ -350,7 +350,7 @@ static void MPI_kernel_3mm() {
 #endif
         
         MPI_timer_end();
-        MPI_timer_print();
+        //MPI_timer_print();
         
     }
     
@@ -581,8 +581,16 @@ int main( int argc, char** argv )
     if (taskid == MASTER)
         printf("Tasks comm port set successful\n");
 #endif
+    if (taskid == MASTER)
+        bench_timer_start();
     
     MPI_kernel_3mm();
+    
+    if (taskid == MASTER){
+        bench_timer_stop();
+        bench_timer_print();
+    }
+        
     
     if ( (taskid == MASTER) && argc > 42 && !strcmp( argv[0], "" ) )
         print_array( ni, nl, G );

@@ -45,7 +45,7 @@
 		47577EB825404B5E00704F54 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		47577EB925404B8700704F54 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		476A620725851BD0004DC3A4 /* libmpi.40.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpi.40.dylib; path = "../../../../../../usr/local/Cellar/open-mpi/4.0.5/lib/libmpi.40.dylib"; sourceTree = "<group>"; };
-		4773A212256C6CFD00ED9309 /* bench-runner.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "bench-runner.sh"; sourceTree = "<group>"; };
+		4773A212256C6CFD00ED9309 /* mpi-runner.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "mpi-runner.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				47577EB925404B8700704F54 /* Makefile */,
-				4773A212256C6CFD00ED9309 /* bench-runner.sh */,
+				4773A212256C6CFD00ED9309 /* mpi-runner.sh */,
 				47577EB825404B5E00704F54 /* .gitignore */,
 				47577EB725404B5E00704F54 /* README.md */,
 				47577EAF25403A5600704F54 /* Docs */,
@@ -311,7 +311,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = (
 					"-Xpreprocessor",
-					"-fopenmp",
+					"-DLARGE",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ispras.ubsefor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -346,7 +346,8 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-Xpreprocessor",
-					"-fopenmp",
+					"-DBENCH",
+					"-DLARGE",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ispras.ubsefor;
 				PRODUCT_NAME = "$(TARGET_NAME)";

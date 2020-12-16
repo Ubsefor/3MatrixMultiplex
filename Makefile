@@ -6,40 +6,40 @@ help:
 	echo "Distclean also removes benchmarks"
 	
 user:
-	mpicc -std=gnu11 -Wall -Wpedantic -Ofast 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -std=c99 -Wall -O3 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
 mini:
-	mpicc -DMINI_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -Ofast 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DMINI_DATASET -DBENCH -std=c99 -Wall -O3 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
 small:
-	mpicc -DSMALL_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -Ofast 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DSMALL_DATASET -DBENCH -std=c99 -Wall  -O3 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
 medium:
-	mpicc -DMEDIUM_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -Ofast 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DMEDIUM_DATASET -DBENCH -std=c99 -Wall  -O3 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 	
 large:
-	mpicc -DLARGE_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -Ofast 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DLARGE_DATASET -DBENCH -std=c99 -Wall  -O3 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
 extra:
-	mpicc -DEXTRALARGE_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -Ofast 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DEXTRALARGE_DATASET -DBENCH -std=c99 -Wall  -O3 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
 noopt-user:
-	mpicc -std=gnu11 -Wall -Wpedantic -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -std=c99 -Wall  -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 
 noopt-mini:
-	mpicc -DMINI_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DMINI_DATASET -DBENCH -std=c99 -Wall  -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 	
 noopt-small:
-	mpicc -DSMALL_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DSMALL_DATASET -DBENCH -std=c99 -Wall  -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 	
 noopt-medium:
-	mpicc -DMEDIUM_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DMEDIUM_DATASET -DBENCH -std=c99 -Wall  -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 	
 noopt-large:
-	mpicc -DLARGE_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DLARGE_DATASET -DBENCH -std=c99 -Wall  -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 	
 noopt-extra:
-	mpicc -DEXTRALARGE_DATASET -DBENCH -std=gnu11 -Wall -Wpedantic -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
+	mpicc -DEXTRALARGE_DATASET -DBENCH -std=c99 -Wall  -O0 3MatrixMultiplex/*.c -o 3MatrixMultiplex-exe
 	
 clean:
 	rm *-exe
