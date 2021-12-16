@@ -32,9 +32,3 @@ for bench in ${DATASET[*]}; do
 done
 
 echo "Done sending benchmarks!"
-
-
-
-
-
-

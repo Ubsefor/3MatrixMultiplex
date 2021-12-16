@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4731491E253F12BD005B5CFC /* 3mm.c in Sources */ = {isa = PBXBuildFile; fileRef = 4731491D253F12BD005B5CFC /* 3mm.c */; };
-		476A620825851BD0004DC3A4 /* libmpi.40.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 476A620725851BD0004DC3A4 /* libmpi.40.dylib */; };
+		477F08BD276B19B0000926D1 /* libmpi.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 477F08BC276B19B0000926D1 /* libmpi.0.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,16 +20,6 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4731491B253F1258005B5CFC /* Embed Libraries */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -44,8 +34,8 @@
 		47577EB725404B5E00704F54 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		47577EB825404B5E00704F54 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		47577EB925404B8700704F54 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		476A620725851BD0004DC3A4 /* libmpi.40.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpi.40.dylib; path = "../../../../../../usr/local/Cellar/open-mpi/4.0.5/lib/libmpi.40.dylib"; sourceTree = "<group>"; };
 		4773A212256C6CFD00ED9309 /* mpi-runner.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "mpi-runner.sh"; sourceTree = "<group>"; };
+		477F08BC276B19B0000926D1 /* libmpi.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpi.0.dylib; path = ../../../../../usr/local/lib/libmpi.0.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,7 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				476A620825851BD0004DC3A4 /* libmpi.40.dylib in Frameworks */,
+				477F08BD276B19B0000926D1 /* libmpi.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,7 +85,7 @@
 		47314917253F118D005B5CFC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				476A620725851BD0004DC3A4 /* libmpi.40.dylib */,
+				477F08BC276B19B0000926D1 /* libmpi.0.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -120,7 +110,6 @@
 				47314908253F1148005B5CFC /* Sources */,
 				47314909253F1148005B5CFC /* Frameworks */,
 				4731490A253F1148005B5CFC /* CopyFiles */,
-				4731491B253F1258005B5CFC /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -301,12 +290,11 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = "/usr/local/Cellar/open-mpi/4.0.5/include";
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					/usr/local/lib,
 					/usr/local/Cellar/llvm/11.0.0/lib,
-					"/usr/local/Cellar/open-mpi/4.0.5/lib",
-					/usr/local/opt/libevent/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_CFLAGS = (
@@ -335,12 +323,11 @@
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = "/usr/local/Cellar/open-mpi/4.0.5/include";
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					/usr/local/lib,
 					/usr/local/Cellar/llvm/11.0.0/lib,
-					"/usr/local/Cellar/open-mpi/4.0.5/lib",
-					/usr/local/opt/libevent/lib,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = YES;

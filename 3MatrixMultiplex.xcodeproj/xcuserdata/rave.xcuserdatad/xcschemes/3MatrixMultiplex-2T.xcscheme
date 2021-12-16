@@ -42,7 +42,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/usr/local/Cellar/open-mpi/4.0.5/bin/orterun">
+         FilePath = "/usr/local/bin/mpirun">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
@@ -55,7 +55,23 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-np 4"
+            argument = "-np 2"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--mca mmap posix"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--mca opal_event_include poll"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--map-by :OVERSUBSCRIBE"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--with-ft ulfm"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -63,6 +79,13 @@
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "TMPDIR"
+            value = "/tmp"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

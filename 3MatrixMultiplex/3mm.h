@@ -76,7 +76,9 @@
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
+#include <signal.h>
 #include <mpi.h>
+#include <mpi-ext.h>
 #include <stdarg.h>
 #include <stdbool.h>
 
