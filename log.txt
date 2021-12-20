@@ -1,0 +1,391 @@
+2021-12-20 13:44:10.595039+0300 prterun[37234:1128035] [CL_INVALID_OPERATION] : OpenCL Error : Failed to retrieve device information! Invalid enumerated value!
+
+2021-12-20 13:44:10.595816+0300 prterun[37234:1128035] [CL_INVALID_OPERATION] : OpenCL Error : Failed to retrieve device information! Invalid enumerated value!
+
+2021-12-20 13:44:10.595919+0300 prterun[37234:1128035] [CL_INVALID_OPERATION] : OpenCL Error : Failed to retrieve device information! Invalid enumerated value!
+
+Medium dataset selected...
+Setting defines successfull
+Choosing victim from 4 processes
+1: Stage selected: 0
+E calculation in 1 task
+1: Requesting data from MASTER
+Choosing victim from 4 processes
+2: Stage selected: 0
+E calculation in 2 task
+2: Requesting data from MASTER
+Choosing victim from 4 processes
+3: Stage selected: 0
+E calculation in 3 task
+3: Requesting data from MASTER
+Init successful
+Choosing victim from 4 processes
+Tasks comm port set successful
+0: Stage selected: 0
+MPI_kernel_3mm has started with 4 tasks.
+Sending 240 rows of A and B to task 1 offset=0
+Offset sent to 1
+1: Got offset from MASTER
+Rows sent to 1
+1: Got rows from MASTER
+1: Got first matrix from MASTER
+A sent to 1
+1: Got second matrix from MASTER
+Received all data for task 1
+B sent to 1
+Sending 240 rows of A and B to task 2 offset=240
+Offset sent to 2
+2: Got offset from MASTER
+Rows sent to 2
+2: Got rows from MASTER
+2: Got first matrix from MASTER
+A sent to 2
+Result: sending data from 1 task to MASTER
+Result: send offset from 1 task to MASTER
+Result: sent rows from 1 task to MASTER
+2: Got second matrix from MASTER
+Received all data for task 2
+B sent to 2
+Sending 240 rows of A and B to task 3 offset=480
+Offset sent to 3
+3: Got offset from MASTER
+Rows sent to 3
+3: Got rows from MASTER
+3: Got first matrix from MASTER
+A sent to 3
+Result: sending data from 2 task to MASTER
+Result: send offset from 2 task to MASTER
+Result: sent rows from 2 task to MASTER
+3: Got second matrix from MASTER
+Received all data for task 3
+B sent to 3
+0: Requesting data from 1 task
+0: Received offset from task 1 for matrix E
+0: Received rows from task 1 for matrix E
+Received results from task 1 for matrix E, waiting for 2 tasks
+0: Requesting data from 2 task
+0: Received offset from task 2 for matrix E
+Successfully sent all data from 1 task to MASTER
+Awaiting sync...
+1: Requesting data from MASTER
+0: Received rows from task 2 for matrix E
+Result: sending data from 3 task to MASTER
+Result: send offset from 3 task to MASTER
+Result: sent rows from 3 task to MASTER
+Received results from task 2 for matrix E, waiting for 1 tasks
+0: Requesting data from 3 task
+0: Received offset from task 3 for matrix E
+Successfully sent all data from 2 task to MASTER
+Awaiting sync...
+2: Requesting data from MASTER
+0: Received rows from task 3 for matrix E
+Received results from task 3 for matrix E, waiting for 0 tasks
+Awaiting sync...
+Sending 254 rows of C and D to task 1 offset=0
+Offset sent to 1
+Successfully sent all data from 3 task to MASTER
+Awaiting sync...
+3: Requesting data from MASTER
+1: Got offset from MASTER
+Rows sent to 1
+1: Got rows from MASTER
+1: Got first matrix from MASTER
+C sent to 1
+1: Got second matrix from MASTER
+Received all data for task 1
+D sent to 1
+Sending 253 rows of C and D to task 2 offset=254
+Offset sent to 2
+2: Got offset from MASTER
+Rows sent to 2
+2: Got rows from MASTER
+2: Got first matrix from MASTER
+C sent to 2
+Result: sending data from 1 task to MASTER
+Result: sent offset from 1 task to MASTER
+Result: sent rows from 1 task to MASTER
+2: Got second matrix from MASTER
+Received all data for task 2
+D sent to 2
+Sending 253 rows of C and D to task 3 offset=507
+Rank 2: Goodbye, cruel world!
+Offset sent to 3
+3: Got offset from MASTER
+Rows sent to 3
+3: Got rows from MASTER
+3: Got first matrix from MASTER
+C sent to 3
+3: Got second matrix from MASTER
+Received all data for task 3
+D sent to 3
+0: Requesting data from 1 task
+0: Received offset from task 1 for matrix E
+0: Received rows from task 1 for matrix E
+Received results from task 1 for matrix F
+0: Requesting data from 2 task
+Successfully sent all data from 1 task to MASTER
+Awaiting sync...
+1: Requesting data from MASTER
+Result: sending data from 3 task to MASTER
+Result: sent offset from 3 task to MASTER
+Result: sent rows from 3 task to MASTER
+rank 1: There was an error getting data from MASTER, retrying stage
+1: Stage selected: 4
+1: Requesting data from MASTER
+Successfully sent all data from 3 task to MASTER
+Awaiting sync...
+3: Requesting data from MASTER
+Report survivor: 0
+Report survivor: 1
+Report survivor: 3
+3: Tried spawning a spare process
+1: Tried spawning a spare process
+0: Tried spawning a spare process
+0 Got former rank
+Root reporting!
+2 Got former rank
+2: Trying to merge intercomm
+1 Got former rank
+1: Trying to merge intercomm
+Spare process created!
+0: Sent new rank assignment to spare
+0: Sent stage to spare
+0: Freed old group
+0: Trying to merge intercomm
+Spawnee 0: crank=2
+0: Trying to merge intercomm
+2: Splitting comm
+0: Splitting comm
+1: Splitting comm
+3: Splitting comm
+2: Ensure operation succeeds
+0: Ensure operation succeeds
+3: Ensure operation succeeds
+1: Ensure operation succeeds
+2: Operation succeeded
+2: Freed mcomm
+2: Successfully managed error
+Spare rank: 2, seen number of processes: 4
+2: Stage selected: 3
+1: Operation succeeded
+1: Freed mcomm
+1: restoring error handler
+1: Successfully managed error
+1: Replaced comm
+0: Operation succeeded
+0: Freed mcomm
+0: restoring error handler
+0: Successfully managed error
+0: Replaced comm
+2: Requesting data from MASTER
+3: Operation succeeded
+3: Freed mcomm
+3: restoring error handler
+3: Successfully managed error
+3: Replaced comm
+0: Received offset from task 2 for matrix E
+1: Got offset from MASTER
+3: Got offset from MASTER
+rank 0: There was an error getting data from 2, retrying stage
+0: Stage selected: 3
+Report survivor: 1
+1: Replaced comm
+Report survivor: 0
+0: Replaced comm
+Report survivor: 3
+3: Replaced comm
+Report survivor: 2
+2: Replaced comm
+[Chromatica:37246] *** Process received signal ***
+[Chromatica:37246] Signal: Segmentation fault: 11 (11)
+[Chromatica:37246] Signal code: Address not mapped (1)
+[Chromatica:37246] Failing at address: 0x10
+[Chromatica:37246] *** End of error message ***
+[Chromatica:37258] *** Process received signal ***
+[Chromatica:37258] Signal: Segmentation fault: 11 (11)
+[Chromatica:37258] Signal code: Address not mapped (1)
+[Chromatica:37258] Failing at address: 0x10
+[Chromatica:37258] *** End of error message ***
+[Chromatica:37244] *** Process received signal ***
+[Chromatica:37244] Signal: Segmentation fault: 11 (11)
+[Chromatica:37244] Signal code: Address not mapped (1)
+[Chromatica:37244] Failing at address: 0x10
+[Chromatica:37244] *** End of error message ***
+Report survivor: 0
+Spare process created!
+Spare process created!
+Spare process created!
+0: Tried spawning a spare process
+0 Got former rank
+Root reporting!
+0: Sent new rank assignment to spare
+0: Sent stage to spare
+Spawnee 0: crank=1
+0: Trying to merge intercomm
+0: Sent new rank assignment to spare
+0: Sent stage to spare
+Spawnee 1: crank=2
+1: Trying to merge intercomm
+0: Sent new rank assignment to spare
+0: Sent stage to spare
+0: Freed old group
+0: Trying to merge intercomm
+Spawnee 2: crank=3
+2: Trying to merge intercomm
+1: Splitting comm
+3: Splitting comm
+0: Splitting comm
+2: Splitting comm
+1: Ensure operation succeeds
+3: Ensure operation succeeds
+0: Ensure operation succeeds
+2: Ensure operation succeeds
+0: Operation succeeded
+2: Operation succeeded
+2: Freed mcomm
+2: Successfully managed error
+0: Freed mcomm
+0: restoring error handler
+0: Successfully managed error
+0: Replaced comm
+Spare rank: 2, seen number of processes: 4
+2: Stage selected: 3
+2: Requesting data from MASTER
+Sending 254 rows of C and D to task 1 offset=0
+1: Operation succeeded
+1: Freed mcomm
+1: Successfully managed error
+Spare rank: 1, seen number of processes: 4
+3: Operation succeeded
+1: Stage selected: 3
+1: Requesting data from MASTER
+3: Freed mcomm
+3: Successfully managed error
+Spare rank: 3, seen number of processes: 4
+3: Stage selected: 3
+3: Requesting data from MASTER
+Offset sent to 1
+1: Got offset from MASTER
+1: Got rows from MASTER
+Rows sent to 1
+C sent to 1
+1: Got first matrix from MASTER
+D sent to 1
+Sending 253 rows of C and D to task 2 offset=254
+1: Got second matrix from MASTER
+Received all data for task 1
+Offset sent to 2
+Rows sent to 2
+2: Got offset from MASTER
+2: Got rows from MASTER
+C sent to 2
+2: Got first matrix from MASTER
+D sent to 2
+Sending 253 rows of C and D to task 3 offset=507
+2: Got second matrix from MASTER
+Received all data for task 2
+Offset sent to 3
+Rows sent to 3
+3: Got offset from MASTER
+3: Got rows from MASTER
+C sent to 3
+3: Got first matrix from MASTER
+D sent to 3
+0: Requesting data from 1 task
+3: Got second matrix from MASTER
+Received all data for task 3
+Result: sending data from 1 task to MASTER
+Result: sent offset from 1 task to MASTER
+Result: sent rows from 1 task to MASTER
+0: Received offset from task 1 for matrix E
+0: Received rows from task 1 for matrix E
+Successfully sent all data from 1 task to MASTER
+Awaiting sync...
+1: Requesting data from MASTER
+Received results from task 1 for matrix F
+0: Requesting data from 2 task
+Result: sending data from 2 task to MASTER
+Result: sent offset from 2 task to MASTER
+0: Received offset from task 2 for matrix E
+Result: sent rows from 2 task to MASTER
+0: Received rows from task 2 for matrix E
+Successfully sent all data from 2 task to MASTER
+Awaiting sync...
+2: Requesting data from MASTER
+Received results from task 2 for matrix F
+0: Requesting data from 3 task
+Result: sending data from 3 task to MASTER
+Result: sent offset from 3 task to MASTER
+Result: sent rows from 3 task to MASTER
+0: Received offset from task 3 for matrix E
+0: Received rows from task 3 for matrix E
+Successfully sent all data from 3 task to MASTER
+Awaiting sync...
+3: Requesting data from MASTER
+Received results from task 3 for matrix F
+Awaiting sync...
+Sending 240 rows of E and F to task 1 offset=0
+Offset sent to 1
+Rows sent to 1
+1: Got offset from MASTER
+1: Got rows from MASTER
+E sent to 1
+1: Got first matrix from MASTER
+F sent to 1
+Sending 240 rows of E and F to task 2 offset=240
+1: Got second matrix from MASTER
+Received all data for task 1
+Offset sent to 2
+Rows sent to 2
+2: Got offset from MASTER
+2: Got rows from MASTER
+E sent to 2
+2: Got first matrix from MASTER
+F sent to 2
+Sending 240 rows of E and F to task 3 offset=480
+Offset sent to 3
+Rows sent to 3
+2: Got second matrix from MASTER
+Received all data for task 2
+3: Got offset from MASTER
+3: Got rows from MASTER
+E sent to 3
+3: Got first matrix from MASTER
+F sent to 3
+0: Requesting data from 1 task
+3: Got second matrix from MASTER
+Received all data for task 3
+Result: sending data from 1 task to MASTER
+Result: sent offset from 1 task to MASTER
+Result: sent rows from 1 task to MASTER
+0: Received offset from task 1 for matrix E
+0: Received rows from task 1 for matrix E
+Successfully sent all data from 1 task to MASTER
+Awaiting sync...
+Received results from task 1
+ for matrix G
+0: Requesting data from 2 task
+Result: sending data from 2 task to MASTER
+Result: sent offset from 2 task to MASTER
+Result: sent rows from 2 task to MASTER
+0: Received offset from task 2 for matrix E
+0: Received rows from task 2 for matrix E
+Successfully sent all data from 2 task to MASTER
+Awaiting sync...
+Received results from task 2
+ for matrix G
+0: Requesting data from 3 task
+Result: sending data from 3 task to MASTER
+Result: sent offset from 3 task to MASTER
+0: Received offset from task 3 for matrix E
+Result: sent rows from 3 task to MASTER
+0: Received rows from task 3 for matrix E
+Successfully sent all data from 3 task to MASTER
+Awaiting sync...
+Received results from task 3
+ for matrix G
+Awaiting sync...
+0: All workers exited
+Time in seconds = 78.229745
+Just finished!
+Program ended with exit code: 0

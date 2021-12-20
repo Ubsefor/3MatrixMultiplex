@@ -7,6 +7,195 @@
 
 #include "3mm.h"
 
+// microsleep in nanoseconds
+int msleep(long msec)
+{
+    struct timespec ts;
+    int res;
+
+    if (msec < 0)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    ts.tv_sec = msec / 1000;
+    ts.tv_nsec = (msec % 1000) * 1000000;
+
+    do {
+        res = nanosleep(&ts, &ts);
+    } while (res && errno == EINTR);
+
+    return res;
+}
+
+// waits for timeout in ms, then calls abort on operations
+static int MPIX_Wait_timeout(MPI_Request *request, long timeout){
+    long tries = 0;
+    int flag = 0;
+    while (!flag) {
+        if (tries > timeout) {
+            MPIX_Comm_revoke(world);
+            return MPI_ERR_PROC_FAILED_PENDING;
+        }
+        MPI_Test(request, &flag, &status);
+        msleep(10);
+        tries++;
+    }
+    return MPI_SUCCESS;
+}
+
+int MPIX_Comm_replace(MPI_Comm comm, MPI_Comm *newcomm) {
+    MPI_Comm icomm, /* the intercomm between the spawnees and the old (shrinked) world */
+             scomm, /* the local comm for each sides of icomm */
+             mcomm; /* the intracomm, merged from icomm */
+    MPI_Group cgrp, sgrp, dgrp;
+    int rc, flag, rflag, i, nc, ns, nd, crank, srank, drank;
+
+redo:
+    if( comm == MPI_COMM_NULL ) { /* am I a new process? */
+        /* I am a new spawnee, waiting for my new rank assignment
+         * it will be sent by rank 0 in the old world */
+        MPI_Comm_get_parent(&icomm);
+        scomm = MPI_COMM_WORLD;
+        // receiving rank
+        MPI_Recv(&crank, 1, MPI_INT, 0, 1, icomm, MPI_STATUS_IGNORE);
+        // receiving previous stage
+        MPI_Recv(&stage, sizeof(int), MPI_INT, 0, 1, icomm, MPI_STATUS_IGNORE);
+        MPI_Comm_rank(scomm, &srank);
+        printf("Spawnee %d: crank=%d\n", srank, crank);
+    }
+    else {
+        /* I am a survivor: Spawn the appropriate number
+         * of replacement processes (we check that this operation worked
+         * before we procees further) */
+        /* First: remove dead processes */
+        MPIX_Comm_shrink(comm, &scomm);
+        MPI_Comm_size(scomm, &ns);
+        MPI_Comm_size(comm, &nc);
+        nd = nc-ns; /* number of deads */
+        printf("Report survivor: %d\n", rank);
+        if( 0 == nd ) {
+            /* Nobody was dead to start with. We are done here */
+            MPI_Comm_free(&scomm);
+            *newcomm = comm;
+            return MPI_SUCCESS;
+        }
+        /* We handle failures during this function ourselves... */
+        MPI_Comm_set_errhandler( scomm, MPI_ERRORS_RETURN );
+        
+        
+        rc = MPI_Comm_spawn(gargv[0], &gargv[1], nd, MPI_INFO_NULL,
+                            0, scomm, &icomm, MPI_ERRCODES_IGNORE);
+        printf("%d: Tried spawning a spare process\n", rank);
+        
+        flag = (MPI_SUCCESS == rc);
+        MPIX_Comm_agree(scomm, &flag);
+        if( !flag ) {
+            if( MPI_SUCCESS == rc ) {
+                MPIX_Comm_revoke(icomm);
+                MPI_Comm_free(&icomm);
+            }
+            MPI_Comm_free(&scomm);
+            fprintf(stderr, "%d: comm_spawn failed, redo\n", rank);
+            goto redo;
+        }
+
+        
+        /* remembering the former rank: we will reassign the same
+         * ranks in the new world. */
+        MPI_Comm_rank(comm, &crank);
+        MPI_Comm_rank(scomm, &srank);
+        printf("%d Got former rank\n", srank);
+        /* the rank 0 in the scomm comm is going to determine the
+         * ranks at which the spares need to be inserted. */
+        if(0 == srank) {
+            /* getting the group of dead processes:
+             *   those in comm, but not in scomm are the deads */
+            printf("Root reporting!\n");
+            MPI_Comm_group(comm, &cgrp);
+            MPI_Comm_group(scomm, &sgrp);
+            MPI_Group_difference(cgrp, sgrp, &dgrp);
+            /* Computing the rank assignment for the newly inserted spares */
+            for(i=0; i<nd; i++) {
+                MPI_Group_translate_ranks(dgrp, 1, &i, cgrp, &drank);
+                /* sending their new assignment to all new procs */
+                MPI_Send(&drank, 1, MPI_INT, i, 1, icomm);
+                printf("%d: Sent new rank assignment to spare\n", srank);
+                /* sending previous stage */
+                MPI_Send(&stage, sizeof(int), MPI_INT, i, 1, icomm);
+                printf("%d: Sent stage to spare\n", srank);
+            }
+            MPI_Group_free(&cgrp); MPI_Group_free(&sgrp); MPI_Group_free(&dgrp);
+            printf("%d: Freed old group\n", srank);
+        }
+        
+    }
+
+    /* Merge the intercomm, to reconstruct an intracomm (we check
+     * that this operation worked before we proceed further) */
+    
+    printf("%d: Trying to merge intercomm\n", srank);
+    rc = MPI_Intercomm_merge(icomm, 1, &mcomm);
+    rflag = flag = (MPI_SUCCESS==rc);
+    MPIX_Comm_agree(scomm, &flag);
+    if( MPI_COMM_WORLD != scomm ) MPI_Comm_free(&scomm);
+    MPIX_Comm_agree(icomm, &rflag);
+    MPI_Comm_free(&icomm);
+    if( !(flag && rflag) ) {
+        if( MPI_SUCCESS == rc ) {
+            MPI_Comm_free(&mcomm);
+        }
+        fprintf(stderr, "%d: Intercomm_merge failed, redo\n", rank);
+        goto redo;
+    }
+
+    /* Now, reorder mcomm according to original rank ordering in comm
+     * Split does the magic: removing spare processes and reordering ranks
+     * so that all surviving processes remain at their former place */
+    printf("%d: Splitting comm\n", crank);
+    rc = MPI_Comm_split(mcomm, 1, crank, newcomm);
+
+    /* Split or some of the communications above may have failed if
+     * new failures have disrupted the process: we need to
+     * make sure we succeeded at all ranks, or retry until it works. */
+    printf("%d: Ensure operation succeeds\n", crank);
+    flag = (MPI_SUCCESS==rc);
+    MPIX_Comm_agree(mcomm, &flag);
+    printf("%d: Operation succeeded\n", crank);
+    MPI_Comm_free(&mcomm);
+    printf("%d: Freed mcomm\n", crank);
+    if( !flag ) {
+        if( MPI_SUCCESS == rc ) {
+            printf("%d: freeing new comm\n", crank);
+            MPI_Comm_free( newcomm );
+            printf("%d: freed newcomm\n", crank);
+        }
+        fprintf(stderr, "%04d: comm_split failed, redo\n", rank);
+        goto redo;
+    }
+
+    /* restore the error handler */
+    if( MPI_COMM_NULL != comm ) {
+        printf("%d: restoring error handler\n", crank);
+        MPI_Errhandler errh;
+        MPI_Comm_get_errhandler( comm, &errh );
+        MPI_Comm_set_errhandler( *newcomm, errh );
+    }
+    printf("%d: Successfully managed error\n",crank);
+    return MPI_SUCCESS;
+}
+
+static void MPIX_Error_handler(MPI_Comm *pcomm, int *perr, ...)
+{
+    MPIX_Comm_replace( world, &rworld );
+    printf("%d: Replaced comm\n", rank);
+    MPI_Comm_free( &world );
+    world = rworld;
+    // set stage for everyone
+    MPI_Bcast(&stage, 1, MPI_INT, 0, world);
+}
+
 int validate_param( char *a )
 {
     unsigned x;
@@ -115,7 +304,7 @@ void kernel_3mm( int ni, int nj, int nk, int nl, int nm,
 }
 
 static void MPI_init_matrixes() {
-    if (taskid == MASTER){
+    if (rank == MASTER){
         for (int i=0; i< ni; i++)
         for (int j=0; j < nj; j++)
         A[i][j] = (double) ( ( i * j + 1 ) % ni ) / ( 5 * ni );
@@ -152,16 +341,42 @@ static void MPI_init_matrixes() {
  float G[ni][nl]
  */
 static void MPI_kernel_3mm() {
-    if (taskid == MASTER)
+    
+kern_start:
+    printf("%d: Stage selected: %d\n",rank,stage);
+    int err = 0;
+    // restore stage if failed
+    
+    
+    switch (stage) {
+        case 2:
+            if (rank == MASTER) goto axb; else goto axbw;
+            
+        case 3:
+            if (rank == MASTER) goto cxd; else goto cxdw;
+            
+        case 4:
+            if (rank == MASTER) goto exf; else goto exfw;
+            
+        default:
+            break;
+    }
+    
+    
+    if (rank == MASTER)
     {
 #ifndef BENCH
-        printf("MPI_kernel_3mm has started with %d tasks.\n",numtasks);
+        printf("MPI_kernel_3mm has started with %d tasks.\n",np);
 #endif
         
         /* Measure start time */
         MPI_timer_start();
-        
+    axb:
+        stage = 2;
+        MPI_Bcast(&stage, 1, MPI_INT, 0, world);
         /* Send A, B matrix data to the worker tasks */
+        MPI_Comm_size(world, &np);
+        numworkers = np - 1;
         averow = NI / numworkers;
         extra = NI % numworkers;
         offset = 0;
@@ -174,21 +389,41 @@ static void MPI_kernel_3mm() {
 #ifndef BENCH
             printf("Sending %d rows of A and B to task %d offset=%d\n",rows,dest,offset);
 #endif
-            MPI_Send(&offset, 1, MPI_INT, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&offset, 1, MPI_INT, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("Offset sent to %d\n",dest);
 #endif
-            MPI_Send(&rows, 1, MPI_INT, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&rows, 1, MPI_INT, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("Rows sent to %d\n",dest);
 #endif
-            MPI_Send(&A[offset][0], rows * NK, MPI_DOUBLE, dest, mtype,
-                     MPI_COMM_WORLD);
+            rc = MPI_Isend(&A[offset][0], rows * NK, MPI_DOUBLE, dest, mtype,
+                     world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("A sent to %d\n",dest);
 #endif
-            MPI_Send(&B, NK * NJ, MPI_DOUBLE, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&B, NK * NJ, MPI_DOUBLE, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("B sent to %d\n",dest);
 #endif
             offset = offset + rows;
@@ -200,19 +435,34 @@ static void MPI_kernel_3mm() {
                 // Master collecting data
             source = i;
 #ifndef BENCH
-            printf("%d: Requesting data from %d task\n", taskid, i);
+            printf("%d: Requesting data from %d task\n", rank, i);
 #endif
-            MPI_Recv(&offset, 1, MPI_INT, source, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&offset, 1, MPI_INT, source, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Received offset from task %d for matrix E\n", taskid, source);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
+            printf("%d: Received offset from task %d for matrix E\n", rank, source);
 #endif
-            MPI_Recv(&rows, 1, MPI_INT, source, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&rows, 1, MPI_INT, source, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Received rows from task %d for matrix E\n", taskid, source);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
+            printf("%d: Received rows from task %d for matrix E\n", rank, source);
 #endif
-            MPI_Recv(&E[offset][0], rows * NJ, MPI_DOUBLE, source, mtype,
-                     MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&E[offset][0], rows * NJ, MPI_DOUBLE, source, mtype,
+                     world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
             printf("Received results from task %d for matrix E, waiting for %d tasks\n",source, numworkers-i);
 #endif
         }
@@ -220,8 +470,13 @@ static void MPI_kernel_3mm() {
 #ifndef BENCH
         printf ("Awaiting sync...\n");
 #endif
-        MPI_Barrier(MPI_COMM_WORLD);
         
+        // STAGE 3
+    cxd:
+        stage = 3;
+        MPI_Bcast(&stage, 1, MPI_INT, 0, world);
+        MPI_Comm_size(world, &np);
+        numworkers = np - 1;
         /* Send C, D matrix data to the worker tasks */
         averow = NJ / numworkers;
         extra = NJ % numworkers;
@@ -235,21 +490,41 @@ static void MPI_kernel_3mm() {
 #ifndef BENCH
             printf("Sending %d rows of C and D to task %d offset=%d\n", rows, dest, offset);
 #endif
-            MPI_Send(&offset, 1, MPI_INT, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&offset, 1, MPI_INT, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("Offset sent to %d\n", dest);
 #endif
-            MPI_Send(&rows, 1, MPI_INT, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&rows, 1, MPI_INT, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("Rows sent to %d\n",dest);
 #endif
-            MPI_Send(&C[offset][0], rows * NM, MPI_DOUBLE, dest, mtype,
-                     MPI_COMM_WORLD);
+            rc = MPI_Isend(&C[offset][0], rows * NM, MPI_DOUBLE, dest, mtype,
+                     world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("C sent to %d\n",dest);
 #endif
-            MPI_Send(&D, NM * NL, MPI_DOUBLE, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&D, NM * NL, MPI_DOUBLE, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("D sent to %d\n",dest);
 #endif
             offset = offset + rows;
@@ -261,19 +536,34 @@ static void MPI_kernel_3mm() {
                 // Master collecting data
             source = i;
 #ifndef BENCH
-            printf("%d: Requesting data from %d task\n", taskid, i);
+            printf("%d: Requesting data from %d task\n", rank, i);
 #endif
-            MPI_Recv(&offset, 1, MPI_INT, source, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&offset, 1, MPI_INT, source, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Received offset from task %d for matrix E\n", taskid, source);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
+            printf("%d: Received offset from task %d for matrix E\n", rank, source);
 #endif
-            MPI_Recv(&rows, 1, MPI_INT, source, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&rows, 1, MPI_INT, source, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Received rows from task %d for matrix E\n", taskid, source);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
+            printf("%d: Received rows from task %d for matrix E\n", rank, source);
 #endif
-            MPI_Recv(&F[offset][0], rows * NL, MPI_DOUBLE, source, mtype,
-                     MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&F[offset][0], rows * NL, MPI_DOUBLE, source, mtype,
+                     world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
             printf("Received results from task %d for matrix F\n",source);
 #endif
         }
@@ -281,7 +571,14 @@ static void MPI_kernel_3mm() {
 #ifndef BENCH
         printf ("Awaiting sync...\n");
 #endif
-        MPI_Barrier(MPI_COMM_WORLD);
+        
+        
+        // STAGE 4
+    exf:
+        stage = 4;
+        MPI_Comm_size(world, &np);
+        numworkers = np - 1;
+        MPI_Bcast(&stage, 1, MPI_INT, 0, world);
         
         /* Send E, F matrix data to the worker tasks */
         averow = NI / numworkers;
@@ -296,21 +593,41 @@ static void MPI_kernel_3mm() {
 #ifndef BENCH
             printf("Sending %d rows of E and F to task %d offset=%d\n",rows,dest,offset);
 #endif
-            MPI_Send(&offset, 1, MPI_INT, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&offset, 1, MPI_INT, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("Offset sent to %d\n", dest);
 #endif
-            MPI_Send(&rows, 1, MPI_INT, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&rows, 1, MPI_INT, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("Rows sent to %d\n",dest);
 #endif
-            MPI_Send(&E[offset][0], rows * NJ, MPI_DOUBLE, dest, mtype,
-                     MPI_COMM_WORLD);
+            rc = MPI_Isend(&E[offset][0], rows * NJ, MPI_DOUBLE, dest, mtype,
+                     world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %d, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("E sent to %d\n",dest);
 #endif
-            MPI_Send(&F, NJ * NL, MPI_DOUBLE, dest, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&F, NJ * NL, MPI_DOUBLE, dest, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to %dest, retrying stage\n", rank, dest);
+                goto kern_start;
+            }
             printf("F sent to %d\n",dest);
 #endif
             offset = offset + rows;
@@ -323,19 +640,34 @@ static void MPI_kernel_3mm() {
                 // Master collecting data
             source = i;
 #ifndef BENCH
-            printf("%d: Requesting data from %d task\n", taskid, i);
+            printf("%d: Requesting data from %d task\n", rank, i);
 #endif
-            MPI_Recv(&offset, 1, MPI_INT, source, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&offset, 1, MPI_INT, source, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Received offset from task %d for matrix E\n", taskid, source);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
+            printf("%d: Received offset from task %d for matrix E\n", rank, source);
 #endif
-            MPI_Recv(&rows, 1, MPI_INT, source, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&rows, 1, MPI_INT, source, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Received rows from task %d for matrix E\n", taskid, source);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
+            printf("%d: Received rows from task %d for matrix E\n", rank, source);
 #endif
-            MPI_Recv(&G[offset][0], rows * NL, MPI_DOUBLE, source, mtype,
-                     MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&G[offset][0], rows * NL, MPI_DOUBLE, source, mtype,
+                     world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from %d, retrying stage\n", rank, source);
+                goto kern_start;
+            }
             printf("Received results from task %d\n for matrix G\n",source);
 #endif
         }
@@ -344,9 +676,9 @@ static void MPI_kernel_3mm() {
         printf ("Awaiting sync...\n");
 #endif
         
-        MPI_Barrier(MPI_COMM_WORLD);
+        
 #ifndef BENCH
-        printf("%d: All workers exited\n", taskid);
+        printf("%d: All workers exited\n", rank);
 #endif
         
         MPI_timer_end();
@@ -356,34 +688,59 @@ static void MPI_kernel_3mm() {
     
     // Workers
     
-    if (taskid > MASTER)
+    if (rank > MASTER)
     {
             // Workers calculating E
+        
+        // STAGE 2
+    axbw:
+        stage = 2;
+    
         {
 #ifndef BENCH
-            printf("E calculation in %d task\n", taskid);
+            printf("E calculation in %d task\n", rank);
 #endif
             
             mtype = FROM_MASTER;
 #ifndef BENCH
-            printf("%d: Requesting data from MASTER\n", taskid);
+            printf("%d: Requesting data from MASTER\n", rank);
 #endif
-            MPI_Recv(&offset, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&offset, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got offset from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got offset from MASTER\n", rank);
 #endif
-            MPI_Recv(&rows, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&rows, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got rows from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got rows from MASTER\n", rank);
 #endif
-            MPI_Recv(&A, rows * NK, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&A, rows * NK, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got first matrix from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got first matrix from MASTER\n", rank);
 #endif
-            MPI_Recv(&B, NK * NJ, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&B, NK * NJ, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got second matrix from MASTER\n", taskid);
-            printf("Received all data for task %d\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got second matrix from MASTER\n", rank);
+            printf("Received all data for task %d\n", rank);
 #endif
             
             for (int k = 0; k < NJ; k++)
@@ -397,98 +754,183 @@ static void MPI_kernel_3mm() {
             mtype = FROM_WORKER;
             
 #ifndef BENCH
-            printf("Result: sending data from %d task to MASTER\n", taskid);
+            printf("Result: sending data from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&offset, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&offset, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("Result: send offset from %d task to MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("Result: send offset from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&rows, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&rows, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("Result: sent rows from %d task to MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("Result: sent rows from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&E, rows * NJ, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&E, rows * NJ, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("Successfully sent all data from %d task to MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("Successfully sent all data from %d task to MASTER\n", rank);
             printf("Awaiting sync...\n");
 #endif
         }
         
-        MPI_Barrier(MPI_COMM_WORLD);
+        
             // Workers calculating F
+        
+        
+        // STAGE 3
+    cxdw:
+        stage = 3;
         
         {
             mtype = FROM_MASTER;
 #ifndef BENCH
-            printf("%d: Requesting data from MASTER\n", taskid);
+            printf("%d: Requesting data from MASTER\n", rank);
 #endif
-            MPI_Recv(&offset, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&offset, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got offset from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got offset from MASTER\n", rank);
 #endif
-            MPI_Recv(&rows, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&rows, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got rows from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto cxdw;
+            }
+            printf("%d: Got rows from MASTER\n", rank);
 #endif
-            MPI_Recv(&C, rows * NM, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&C, rows * NM, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got first matrix from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got first matrix from MASTER\n", rank);
 #endif
-            MPI_Recv(&D, NM * NL, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&D, NM * NL, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got second matrix from MASTER\n", taskid);
-            printf("Received all data for task %d\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got second matrix from MASTER\n", rank);
+            printf("Received all data for task %d\n", rank);
 #endif
             
             for (int k = 0; k < NL; k++)
                 for (int i = 0; i < rows; i++)
                 {
                     F[i][k] = 0.0;
+                    
+                    // ERROR HERE
+                    if (setdie && rank == 2 && k == 20){
+                        printf("Rank %d: Goodbye, cruel world!\n", rank);
+                        raise( SIGKILL );
+                    }
+                    
                     for (int j = 0; j < NJ; j++)
                         F[i][k] = F[i][k] + C[i][j] * D[j][k];
                 }
             mtype = FROM_WORKER;
 #ifndef BENCH
-            printf("Result: sending data from %d task to MASTER\n", taskid);
+            printf("Result: sending data from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&offset, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&offset, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("Result: sent offset from %d task to MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("Result: sent offset from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&rows, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&rows, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("Result: sent rows from %d task to MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("Result: sent rows from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&F, rows * NL, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&F, rows * NL, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("Successfully sent all data from %d task to MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("Successfully sent all data from %d task to MASTER\n", rank);
             printf("Awaiting sync...\n");
 #endif
         }
         
-        MPI_Barrier(MPI_COMM_WORLD);
             // Workers calculating G
+        // STAGE 4
+    exfw:
+        stage = 4;
+
         {
             mtype = FROM_MASTER;
 #ifndef BENCH
-            printf("%d: Requesting data from MASTER\n", taskid);
+            printf("%d: Requesting data from MASTER\n", rank);
 #endif
-            MPI_Recv(&offset, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&offset, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got offset from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got offset from MASTER\n", rank);
 #endif
-            MPI_Recv(&rows, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&rows, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got rows from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got rows from MASTER\n", rank);
 #endif
-            MPI_Recv(&E, rows * NJ, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&E, rows * NJ, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got first matrix from MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got first matrix from MASTER\n", rank);
 #endif
-            MPI_Recv(&F, NJ * NL, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD, &status);
+            rc = MPI_Irecv(&F, NJ * NL, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("%d: Got second matrix from MASTER\n", taskid);
-            printf("Received all data for task %d\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error getting data from MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("%d: Got second matrix from MASTER\n", rank);
+            printf("Received all data for task %d\n", rank);
 #endif
             
             for (k=0; k < NL; k++)
@@ -501,35 +943,78 @@ static void MPI_kernel_3mm() {
             
             mtype = FROM_WORKER;
 #ifndef BENCH
-            printf("Result: sending data from %d task to MASTER\n", taskid);
+            printf("Result: sending data from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&offset, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&offset, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("Result: sent offset from %d task to MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("Result: sent offset from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&rows, 1, MPI_INT, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&rows, 1, MPI_INT, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
 #ifndef BENCH
-            printf("Result: sent rows from %d task to MASTER\n", taskid);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
+            printf("Result: sent rows from %d task to MASTER\n", rank);
 #endif
-            MPI_Send(&G, rows * NL, MPI_DOUBLE, MASTER, mtype, MPI_COMM_WORLD);
+            rc = MPI_Isend(&G, rows * NL, MPI_DOUBLE, MASTER, mtype, world, &request);
+            err = MPIX_Wait_timeout(&request, 3000);
+            if (err != MPI_SUCCESS){
+                printf("rank %d: There was an error sending data to MASTER, retrying stage\n", rank);
+                goto kern_start;
+            }
         }
 #ifndef BENCH
-        printf("Successfully sent all data from %d task to MASTER\n", taskid);
+        printf("Successfully sent all data from %d task to MASTER\n", rank);
         printf("Awaiting sync...\n");
 #endif
         
-        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(world);
         
 #ifndef BENCH
-        printf("%d: Done working.\n", taskid);
+        printf("%d: Done working.\n", rank);
 #endif
         
     }
 }
 
-int main( int argc, char** argv )
+int main( int argc, char* argv[] )
 {
+    gargv = argv;
+  
+    MPI_Init( &argc, &argv );
+    MPI_Errhandler errh;
+    
+    MPI_Comm_get_parent( &world );
+    if( MPI_COMM_NULL == world ) {
+        /* First run: Let's create an initial world,
+         * a copy of MPI_COMM_WORLD */
+        MPI_Comm_dup( MPI_COMM_WORLD, &world );
+        MPI_Comm_size( world, &np );
+        MPI_Comm_rank( world, &rank );
         
+        MPI_Comm_create_errhandler(MPIX_Error_handler, &errh);
+        MPI_Comm_set_errhandler(world, errh);
+    } else {
+        /* I am a spare, lets get the repaired world */
+        printf("Spare process created!\n");
+        MPIX_Comm_replace( MPI_COMM_NULL, &world );
+        MPI_Comm_size( world, &np );
+        MPI_Comm_rank( world, &rank );
+        printf("Spare rank: %d, seen number of processes: %d\n", rank,np);
+        MPI_Comm_create_errhandler(MPIX_Error_handler, &errh);
+        MPI_Comm_set_errhandler(world, errh);
+        setdie = false;
+        goto joinwork;
+    }
+  
+    if (rank == MASTER){
 #ifndef BENCH
 #ifdef MINI_DATASET
     printf("Mini dataset selected...\n");
@@ -551,12 +1036,13 @@ int main( int argc, char** argv )
 #ifndef BENCH
     printf("Setting defines successfull\n");
 #endif
-
-    MPI_Init(&argc,&argv);
-    MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
-    MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
+    }
     
-    if (numtasks < 2 ) {
+    if (np < 2 ) {
+        printf("Guess I'll die ¯\\_(ツ)_/¯ \n");
+        raise ( SIGKILL );
+        // Basically, there's no point doing this;
+        // This is left here as legacy for future references
         bench_timer_start();
         kernel_3mm( ni, nj, nk, nl, nm,
                    E,
@@ -572,31 +1058,40 @@ int main( int argc, char** argv )
         MPI_Finalize();
         return 0;
     }
-    numworkers = numtasks-1;
     
-    MPI_init_matrixes();
+    numworkers = np-1;
+    if (rank == MASTER && !spare){
+        MPI_init_matrixes();
+    }
     
     
+    /* The victim is now the median process (for simplicity) */
+    printf("Choosing victim from %d processes\n", np);
+    victim = (rank == np / 2)? 1 : 0;
+    
+    if (rank == MASTER){
 #ifndef BENCH
-    if (taskid == MASTER)
         printf("Tasks comm port set successful\n");
 #endif
-    if (taskid == MASTER)
         bench_timer_start();
+    }
+    
+joinwork:
     
     MPI_kernel_3mm();
     
-    if (taskid == MASTER){
+    
+    if (rank == MASTER){
         bench_timer_stop();
         bench_timer_print();
     }
         
     
-    if ( (taskid == MASTER) && argc > 42 && !strcmp( argv[0], "" ) )
+    if ( (rank == MASTER) && argc > 42 && !strcmp( argv[0], "" ) )
         print_array( ni, nl, G );
     
 #ifndef BENCH
-    if (taskid == MASTER)
+    if (rank == MASTER)
         printf( "Just finished!\n" );
 #endif
     MPI_Finalize();

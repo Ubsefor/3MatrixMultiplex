@@ -67,6 +67,10 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--mca mpi_ft_detector_timeout 3"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--map-by :OVERSUBSCRIBE"
             isEnabled = "YES">
          </CommandLineArgument>

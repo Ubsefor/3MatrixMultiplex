@@ -16,6 +16,7 @@
 #define _mm_h
 
 #define THREAD_NUM    16
+#define TIMEOUT       10000000
 
 #define MASTER 0               /* task id of first task  */
 #define FROM_MASTER 1          /* setting a message type */
@@ -74,6 +75,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include <unistd.h>
+#include <errno.h>
 #include <time.h>
 #include <sys/time.h>
 #include <signal.h>
@@ -90,23 +93,47 @@ double
 
 int mpi_comm_rank, mpi_comm_size;
 
+int rc; /* error code from MPI functions */
+int victim;
+int spare;
+
+bool setdie = true;
+
+char estr[MPI_MAX_ERROR_STRING]=""; int strl; /* error messages */
+
+MPI_Comm world; /* a world comm for the work, w/o the spares */
+MPI_Comm rworld; /* and a temporary handle to store the repaired copy */
+MPI_Status status;
+MPI_Request request;
+
+int stage = 0;
+
+char** gargv;
+
+int ping = 0;
+int failed = -1;
+
+bool errflag = false;
+
 int ni = NI;
 int nj = NJ;
 int nk = NK;
 int nl = NL;
 int nm = NM;
 
-double E[NI][NJ];
 double A[NI][NK];
 double B[NK][NJ];
-double F[NJ][NL];
+double E[NI][NJ] = {0};
+
 double C[NJ][NM];
 double D[NM][NL];
-double G[NI][NL];
+double F[NJ][NL] = {0};
+
+double G[NI][NL] = {0};
 
 int
-    numtasks,              /* number of tasks in partition */
-    taskid,                /* a task identifier */
+    np,              /* number of tasks in partition */
+    rank,                /* a task identifier */
     numworkers,            /* number of worker tasks */
     source,                /* task id of message source */
     dest,                  /* task id of message destination */
@@ -114,9 +141,6 @@ int
     rows,                  /* rows of matrix A sent to each worker */
     averow, extra, offset, /* used to determine rows sent to each worker */
     i, j, k, rc;           /* misc */
-
-MPI_Status status;
-
 
 double rtclock( void )
 {
