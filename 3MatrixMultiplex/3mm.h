@@ -91,8 +91,6 @@ double
     bench_t_start, bench_t_end,
     mpi_t_start, mpi_t_end;
 
-int mpi_comm_rank, mpi_comm_size;
-
 int rc; /* error code from MPI functions */
 int victim;
 int spare;
@@ -111,9 +109,6 @@ int stage = 0;
 char** gargv;
 
 int ping = 0;
-int failed = -1;
-
-bool errflag = false;
 
 int ni = NI;
 int nj = NJ;
